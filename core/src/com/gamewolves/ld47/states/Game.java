@@ -34,7 +34,7 @@ public class Game extends State
 	public void loadResources(AssetManager assetManager)
 	{
 		assetManager.load("map/map.png", Texture.class);
-		assetManager.load("map/wateranimation_sheet.png", Texture.class);
+		//assetManager.load("map/wateranimation_sheet.png", Texture.class);
 		assetManager.load("map/grassanim-Sheet.png", Texture.class);
 
 		assetManager.load("cracter/prof_idle_1.png", Texture.class);
@@ -46,6 +46,10 @@ public class Game extends State
 		assetManager.load("enemies/1/shoot_1.png", Texture.class);
 		assetManager.load("enemies/1/shot.png", Texture.class);
 		assetManager.load("enemies/1/side_1.png", Texture.class);
+
+		assetManager.load("cracter/weapons/weapon_1.png", Texture.class);
+		assetManager.load("cracter/weapons/ws_1.png", Texture.class);
+		assetManager.load("cracter/weapons/wsanim_1.png", Texture.class);
 	}
 
 	@Override
@@ -64,9 +68,9 @@ public class Game extends State
 
 		backgroundTexture = Main.get().assetManager.get("map/map.png");
 		grassSprite = new AnimatedSprite((Texture) Main.get().assetManager.get("map/grassanim-Sheet.png"), backgroundTexture.getWidth(), backgroundTexture.getHeight(), 2);
-		riverSprite = new AnimatedSprite((Texture) Main.get().assetManager.get("map/wateranimation_sheet.png"), backgroundTexture.getWidth(), backgroundTexture.getHeight(), 1);
+		//riverSprite = new AnimatedSprite((Texture) Main.get().assetManager.get("map/wateranimation_sheet.png"), backgroundTexture.getWidth(), backgroundTexture.getHeight(), 1);
 		grassSprite.setPosition(-backgroundTexture.getWidth() * .5f, -backgroundTexture.getHeight() * .5f);
-		riverSprite.setPosition(-backgroundTexture.getWidth() * .5f, -backgroundTexture.getHeight() * .5f);
+		//riverSprite.setPosition(-backgroundTexture.getWidth() * .5f, -backgroundTexture.getHeight() * .5f);
 
 		Physics.getWorld().setContactListener(new ContactListener() {
 			@Override
@@ -162,7 +166,7 @@ public class Game extends State
 		waveManager.update(deltaTime, tower.getPosition());
 
 		grassSprite.update(deltaTime);
-		riverSprite.update(deltaTime);
+		//riverSprite.update(deltaTime);
 	}
 
 	@Override

@@ -124,7 +124,7 @@ public class Crane
         {
             isGrabbing = true;
 
-            if (hoveredEnemies.notEmpty() && grabbedEnemy == null)
+            if (hoveredEnemies.notEmpty() && (grabbedEnemy == null || grabbedEnemy.isDisposable()))
             {
                 grabbedEnemy = hoveredEnemies.random();
                 grabbedEnemy.grab();

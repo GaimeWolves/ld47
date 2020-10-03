@@ -42,4 +42,6 @@ public abstract class Enemy
         if (health <= 0)
             isDisposable = true;
     }
+
+    public boolean isDisposable() { return isDisposable; }
 }

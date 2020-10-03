@@ -1,6 +1,8 @@
 package com.gamewolves.ld47.entities.guns;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -15,9 +17,14 @@ public class BasicGun extends Gun
 
     private float cooldownTime = 0;
 
-    @Override
-    public void loadResources(AssetManager assetManager) {
+    private Sprite sprite;
 
+    @Override
+    public void loadResources(AssetManager assetManager)
+    {
+        sprite = new Sprite((Texture) assetManager.get("cracter/weapons/weapon_1.png"));
+        sprite.setOriginCenter();
+        sprite.setScale(0.7f);
     }
 
     @Override
@@ -55,16 +62,13 @@ public class BasicGun extends Gun
 
         towerPosition = towerPos;
 
+        sprite.setOriginBasedPosition(towerPosition.x, towerPosition.y);
+        sprite.setRotation(actualAngle);
+        sprite.draw(batch);
+
         shotOffset = new Vector2(1, 0);
         shotOffset.setAngle(actualAngle);
-        shotOffset.scl(15);
-
-        Main.get().shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        Main.get().shapeRenderer.setColor(1, 0 ,0 ,1);
-        Main.get().shapeRenderer.line(towerPos, towerPos.cpy().add(shotOffset));
-        Main.get().shapeRenderer.line(towerPos, towerPos.cpy().add(shotOffset.cpy().scl(-1)));
-        Main.get().shapeRenderer.setColor(1, 1 ,1 ,1);
-        Main.get().shapeRenderer.end();
+        shotOffset.scl(8);
     }
 
     @Override

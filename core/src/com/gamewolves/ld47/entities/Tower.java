@@ -125,11 +125,8 @@ public class Tower
     public void render(SpriteBatch batch)
     {
         idleAnimations[animation].render(batch);
-
-        batch.end();
         for (Gun gun : guns)
             gun.render(batch);
-        batch.begin();
     }
 
     public void dispose(AssetManager assetManager)

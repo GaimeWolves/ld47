@@ -79,6 +79,7 @@ public class Main extends ApplicationAdapter
 		//Initial loading (font, loading bar, etc)
 		GamePreferences.init();
 		Physics.init();
+		assetManager.load("font.fnt", BitmapFont.class);
 
 		currentState = new Game();
 		currentState.loadResources(assetManager);
@@ -135,10 +136,10 @@ public class Main extends ApplicationAdapter
 
 		for (int i = 0; i < 3; i++)
 		{
-			float x = Width / 2 - 60 + 40 * i + 15;
-			float y = (float) (Height / 2 + Math.sin(elapsedTime * 10 + i * Math.PI / 3) * 30);
+			float x = -20f + 15 * i;
+			float y = (float) (Math.sin(elapsedTime * 10 + i * Math.PI / 3) * 10);
 
-			shapeRenderer.circle(x, y, 15);
+			shapeRenderer.circle(x, y, 5);
 		}
 
 		shapeRenderer.end();
