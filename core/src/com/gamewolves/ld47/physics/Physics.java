@@ -13,10 +13,6 @@ import box2dLight.RayHandler;
 
 public class Physics
 {
-	public static final float MPP = .01f;
-	public static final float PPM = 100;
-
-	private static final Vector2 Gravity = new Vector2(0, -40);
 	private static final Color AmbientColor = new Color(0.2f, 0.2f, 0.2f, 0.4f);
 
 	private static Physics Instance;
@@ -29,14 +25,14 @@ public class Physics
 
 	private Physics()
 	{
-		world = new World(Gravity, true);
+		world = new World(new Vector2(), false);
 		world.setAutoClearForces(true);
 
 		RayHandler.setGammaCorrection(true);
 		RayHandler.useDiffuseLight(false);
 
 		rayHandler = new RayHandler(world);
-		rayHandler.setCombinedMatrix(Main.get().camera.combined.cpy().scl(PPM, PPM, 0), 0, 0, Main.get().camera.viewportWidth, Main.get().camera.viewportHeight);
+		rayHandler.setCombinedMatrix(Main.get().camera.combined.cpy(), 0, 0, Main.get().camera.viewportWidth, Main.get().camera.viewportHeight);
 		rayHandler.setAmbientLight(AmbientColor);
 		rayHandler.setBlurNum(3);
 		rayHandler.setShadows(true);
@@ -67,7 +63,7 @@ public class Physics
 		if (Instance.drawDebug)
 		{
 			batch.begin();
-			Instance.debugRenderer.render(Instance.world, Main.get().camera.combined.cpy().scl(PPM, PPM, 0));
+			Instance.debugRenderer.render(Instance.world, Main.get().camera.combined.cpy());
 			batch.end();
 		}
 	}
