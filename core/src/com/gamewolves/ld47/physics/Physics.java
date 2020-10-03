@@ -25,7 +25,7 @@ public class Physics
 
 	private Physics()
 	{
-		world = new World(new Vector2(), true);
+		world = new World(new Vector2(), false);
 		world.setAutoClearForces(true);
 
 		RayHandler.setGammaCorrection(true);

@@ -22,14 +22,15 @@ public class BulletManager
         {
             projectiles.get(i).update(deltaTime);
 
-            if (projectiles.get(i).isDisposable())
-                projectiles.removeIndex(i--).dispose(Main.get().assetManager);
-
             // Check bounds
             Vector2 pos = projectiles.get(i).getPosition();
             if (pos.x < -Main.get().Width - 10 || pos.x > Main.get().Width + 10 || pos.y < -Main.get().Height - 10 || pos.y > Main.get().Height + 10)
                 projectiles.removeIndex(i--).dispose(Main.get().assetManager);
         }
+
+        for (int i = 0; i < projectiles.size; i++)
+            if (projectiles.get(i).isDisposable())
+                projectiles.removeIndex(i--).dispose(Main.get().assetManager);
     }
 
     public void render(SpriteBatch batch)

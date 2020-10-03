@@ -38,7 +38,11 @@ public class BasicGun extends Gun
 
             BasicProjectile projectile = new BasicProjectile();
             projectile.loadResources(Main.get().assetManager);
-            projectile.initialize(bulletManager, Vector2.X.cpy().setAngle(actualAngle), shotPosition, true);
+            projectile.initialize(bulletManager, Vector2.X.cpy().setAngle(actualAngle), towerPosition.cpy().add(shotOffset), true);
+
+            projectile = new BasicProjectile();
+            projectile.loadResources(Main.get().assetManager);
+            projectile.initialize(bulletManager, Vector2.X.cpy().setAngle(actualAngle).scl(-1), towerPosition.cpy().add(shotOffset.cpy().scl(-1)), true);
         }
     }
 
@@ -49,18 +53,16 @@ public class BasicGun extends Gun
         towerPos.setLength(Tower.RADIUS);
         towerPos.setAngle(towerAngle);
 
-        Vector2 gunAnchor = new Vector2(1, 0);
-        gunAnchor.setLength(10);
-        gunAnchor.setAngle(actualAngle);
-        gunAnchor.add(towerPos);
+        towerPosition = towerPos;
 
-        Vector2 gunDir = new Vector2(1, 0);
-        gunDir.setAngle(actualAngle);
-        shotPosition = gunAnchor.cpy().add(gunDir.scl(10));
+        shotOffset = new Vector2(1, 0);
+        shotOffset.setAngle(actualAngle);
+        shotOffset.scl(15);
 
         Main.get().shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         Main.get().shapeRenderer.setColor(1, 0 ,0 ,1);
-        Main.get().shapeRenderer.line(gunAnchor, shotPosition);
+        Main.get().shapeRenderer.line(towerPos, towerPos.cpy().add(shotOffset));
+        Main.get().shapeRenderer.line(towerPos, towerPos.cpy().add(shotOffset.cpy().scl(-1)));
         Main.get().shapeRenderer.setColor(1, 1 ,1 ,1);
         Main.get().shapeRenderer.end();
     }

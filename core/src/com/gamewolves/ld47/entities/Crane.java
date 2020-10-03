@@ -7,8 +7,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.gamewolves.ld47.Main;
+import com.gamewolves.ld47.entities.enemies.Enemy;
 import com.gamewolves.ld47.input.InputHandler;
+import com.gamewolves.ld47.physics.Physics;
 
 /**
  * Yoinked from TheCodingTrain
@@ -77,6 +83,8 @@ public class Crane
     private Segment[] segments = new Segment[3];
     private Vector2 head = new Vector2();
     private Vector2 base = new Vector2();
+    private Body body;
+    private Enemy grabbedEnemy;
 
     public void loadResources(AssetManager assetManager)
     {
@@ -88,11 +96,43 @@ public class Crane
         segments[0] = new Segment(base.x, base.y, LENGTH);
         for (int i = 1; i < segments.length; i++)
             segments[i] = new Segment(segments[i - 1], LENGTH);
+
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+
+        CircleShape shape = new CircleShape();
+        shape.setRadius(10);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.isSensor = true;
+        fixtureDef.shape = shape;
+
+        body = Physics.getWorld().createBody(bodyDef);
+        (body.createFixture(fixtureDef)).setUserData(this);
+        body.setActive(false);
+
+        shape.dispose();
     }
 
     public void update(float deltaTime)
     {
         Vector2 pos = InputHandler.get().getMousePositionInWorld();
+
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT))
+        {
+            if (!body.isActive())
+                body.setActive(true);
+        }
+        else
+        {
+            if (body.isActive())
+                body.setActive(false);
+
+            if (grabbedEnemy != null) {
+                grabbedEnemy.release();
+                grabbedEnemy = null;
+            }
+        }
 
         int total = segments.length;
         Segment end = segments[total - 1];
@@ -111,6 +151,10 @@ public class Crane
             segments[i].setA(segments[i - 1].b);
 
         head = end.b.cpy();
+        body.setTransform(head, 0);
+
+        if (grabbedEnemy != null)
+            grabbedEnemy.setPosition(head);
     }
 
     public void render(SpriteBatch batch)
@@ -125,5 +169,15 @@ public class Crane
     public void dispose(AssetManager assetManager)
     {
 
+    }
+
+    public void setGrabbedEnemy(Enemy enemy)
+    {
+        grabbedEnemy = enemy;
+    }
+
+    public Enemy getGrabbedEnemy()
+    {
+        return grabbedEnemy;
     }
 }

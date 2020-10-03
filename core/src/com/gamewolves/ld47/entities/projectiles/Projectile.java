@@ -36,11 +36,14 @@ public abstract class Projectile
     public abstract void render(SpriteBatch batch);
     public abstract void dispose(AssetManager assetManager);
 
+    public void setDisposable() { isDisposable = true; }
+
     public boolean isDisposable()
     {
         return isDisposable;
     }
-
+    public boolean isPlayerShot() { return isPlayerShot; }
+    public float getDamage() { return damage; }
     public Vector2 getPosition()
     {
         return position.cpy();

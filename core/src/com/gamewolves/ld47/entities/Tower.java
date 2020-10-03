@@ -46,7 +46,7 @@ public class Tower
         guns.add(basicGun);
 
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.KinematicBody;
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
 
         CircleShape shape = new CircleShape();
         shape.setRadius(10);

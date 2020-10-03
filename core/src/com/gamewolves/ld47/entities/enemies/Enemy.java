@@ -19,4 +19,27 @@ public abstract class Enemy
     public abstract void update(float deltaTime, Vector2 playerPos);
     public abstract void render(SpriteBatch batch, Vector2 playerPos);
     public abstract void dispose(AssetManager assetManager);
+
+    public void grab()
+    {
+        isGrabbed = true;
+    }
+
+    public void release()
+    {
+        isGrabbed = false;
+    }
+
+    public void setPosition(Vector2 pos)
+    {
+        position = pos;
+    }
+
+    public void hit(float damage)
+    {
+        health -= damage;
+
+        if (health <= 0)
+            isDisposable = true;
+    }
 }

@@ -10,7 +10,8 @@ public abstract class Gun
     protected float fixedAngle;
     protected float actualAngle;
     protected float towerAngle;
-    protected Vector2 shotPosition;
+    protected Vector2 shotOffset;
+    protected Vector2 towerPosition;
     protected BulletManager bulletManager;
 
     public abstract void loadResources(AssetManager assetManager);

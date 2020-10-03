@@ -5,11 +5,17 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.Manifold;
 import com.gamewolves.ld47.Main;
 import com.gamewolves.ld47.entities.BulletManager;
 import com.gamewolves.ld47.entities.Crane;
 import com.gamewolves.ld47.entities.Tower;
+import com.gamewolves.ld47.entities.enemies.Enemy;
 import com.gamewolves.ld47.entities.enemies.WaveManager;
+import com.gamewolves.ld47.entities.projectiles.Projectile;
 import com.gamewolves.ld47.physics.Physics;
 
 public class Game extends State
@@ -36,6 +42,72 @@ public class Game extends State
 		tower.initialize(bulletManager);
 		crane.initialize();
 		waveManager.initialize(bulletManager);
+
+		Physics.getWorld().setContactListener(new ContactListener() {
+			@Override
+			public void beginContact(Contact contact) {
+				Object objectA = contact.getFixtureA().getUserData();
+				Object objectB = contact.getFixtureB().getUserData();
+
+				if (objectA instanceof Crane || objectB instanceof Crane) {
+					if (crane.getGrabbedEnemy() == null) {
+						if (objectA instanceof Enemy || objectB instanceof Enemy) {
+							Enemy enemy = (Enemy)(objectA instanceof Enemy ? objectA : objectB);
+
+							crane.setGrabbedEnemy(enemy);
+							enemy.grab();
+						}
+					}
+				}
+				else if (objectA instanceof Tower || objectB instanceof Tower)
+				{
+					if (objectA instanceof Enemy || objectB instanceof Enemy)
+					{
+						// Todo: gameover
+						System.out.println("Gem ovär");
+					}
+					else if (objectA instanceof Projectile || objectB instanceof Projectile)
+					{
+						Projectile projectile = (Projectile) (objectA instanceof Projectile ? objectA : objectB);
+
+						if (!projectile.isPlayerShot())
+						{
+							// Todo: gameover
+							System.out.println("Gem ovär");
+						}
+					}
+				}
+				else if (objectA instanceof Enemy || objectB instanceof Enemy)
+				{
+					if (objectA instanceof Projectile || objectB instanceof Projectile)
+					{
+						Projectile projectile = (Projectile) (objectA instanceof Projectile ? objectA : objectB);
+						Enemy enemy = (Enemy)(objectA instanceof Enemy ? objectA : objectB);
+
+						if (projectile.isPlayerShot())
+						{
+							enemy.hit(projectile.getDamage());
+							projectile.setDisposable();
+						}
+					}
+				}
+			}
+
+			@Override
+			public void endContact(Contact contact) {
+
+			}
+
+			@Override
+			public void preSolve(Contact contact, Manifold oldManifold) {
+
+			}
+
+			@Override
+			public void postSolve(Contact contact, ContactImpulse impulse) {
+
+			}
+		});
 	}
 
 	@Override
