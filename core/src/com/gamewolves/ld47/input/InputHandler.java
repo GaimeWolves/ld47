@@ -87,4 +87,9 @@ public class InputHandler
 				Main.get().camera.unproject(new Vector3(screenCoordinates.x, screenCoordinates.y, 0)).y
 		);
 	}
+
+	public Vector2 getMousePositionInWorld()
+	{
+		return toWorldCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+	}
 }

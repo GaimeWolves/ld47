@@ -19,13 +19,19 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gamewolves.ld47.assetloaders.LoaderRegistrar;
 import com.gamewolves.ld47.input.InputHandler;
 import com.gamewolves.ld47.physics.Physics;
-import com.gamewolves.ld47.states.Menu;
+import com.gamewolves.ld47.states.Game;
 import com.gamewolves.ld47.states.State;
 import com.gamewolves.ld47.transitions.TransitionHandler;
 import com.gamewolves.ld47.utils.GamePreferences;
 
 public class Main extends ApplicationAdapter 
 {
+	public enum Device
+	{
+		DESKTOP,
+		WEBAPP
+	}
+
 	private static Main Instance; // Singleton
 	public SpriteBatch spriteBatch;
 	public ShapeRenderer shapeRenderer;
@@ -39,6 +45,7 @@ public class Main extends ApplicationAdapter
 	public State currentState;
 	public float elapsedTime = 0;
 	public XmlReader xmlReader = new XmlReader();
+	public Device device;
 
 	public static Main get() { return Instance; }
 
@@ -51,12 +58,18 @@ public class Main extends ApplicationAdapter
 		polySpriteBatch = new PolygonSpriteBatch();
 		shapeRenderer = new ShapeRenderer();
 
-		// Todo get screen size properly
-		float aspect_ratio = (float) Gdx.graphics.getWidth() / (float) Gdx.graphics.getHeight();
-		Width = 1080;
-		Height = Width / aspect_ratio;
+		if (device == Device.DESKTOP)
+		{
+			float w = Gdx.app.getGraphics().getDisplayMode().width;
+			float h = Gdx.app.getGraphics().getDisplayMode().height;
+			int size = (int) (Math.min(w, h) * .8f);
+			Gdx.graphics.setResizable(false);
+			Gdx.graphics.setWindowedMode(size, size);
+		}
+
+		Width = 320;
+		Height = 320;
 		camera = new OrthographicCamera(Width, Height);
-		camera.translate(Width / 2, Height / 2, 0);
 		viewport = new StretchViewport(Width, Height, camera);
 		camera.update();
 
@@ -67,7 +80,7 @@ public class Main extends ApplicationAdapter
 		GamePreferences.init();
 		Physics.init();
 
-		currentState = new Menu();
+		currentState = new Game();
 		currentState.loadResources(assetManager);
 	}
 
@@ -100,9 +113,6 @@ public class Main extends ApplicationAdapter
 		spriteBatch.setProjectionMatrix(camera.combined);
 		shapeRenderer.setProjectionMatrix(camera.combined);
 		polySpriteBatch.setProjectionMatrix(camera.combined);
-
-		renderLoadingScreen();
-		if (true) return;
 
 		// State finished loading?
 		if (assetManager.isFinished() && currentState.isInitialized())
