@@ -147,7 +147,7 @@ public class Game extends State
 	@Override
 	public void update(float deltaTime)
 	{
-		Vector2 pos = tower.getPosition().scl(1.7f);
+		Vector2 pos = tower.getPosition().scl(1.8f);
 		Vector2 cam = new Vector2(Main.get().camera.position.x, Main.get().camera.position.y);
 		Vector2 rem = pos.cpy().sub(cam);
 		rem.scl(deltaTime * 3);
@@ -170,8 +170,8 @@ public class Game extends State
 	{
 		spriteBatch.begin();
 		spriteBatch.draw(backgroundTexture, -backgroundTexture.getWidth() * .5f, -backgroundTexture.getHeight() * .5f);
-		grassSprite.render(spriteBatch);
-		riverSprite.render(spriteBatch);
+		//grassSprite.render(spriteBatch);
+		//riverSprite.render(spriteBatch);
 		spriteBatch.end();
 
 		spriteBatch.begin();

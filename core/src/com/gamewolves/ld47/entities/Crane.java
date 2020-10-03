@@ -79,7 +79,7 @@ public class Crane
         }
     }
 
-    private static final float LENGTH = 45;
+    private static final float LENGTH = 60;
 
     private Segment[] segments = new Segment[3];
     private Vector2 head = new Vector2();

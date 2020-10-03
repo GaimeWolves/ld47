@@ -51,9 +51,9 @@ public class Tower
         idleAnimations[1].setCentered(true);
         idleAnimations[2].setCentered(true);
 
-        idleAnimations[0].setScale(0.6f, 0.6f);
-        idleAnimations[1].setScale(0.6f, 0.6f);
-        idleAnimations[2].setScale(0.6f, 0.6f);
+        idleAnimations[0].setScale(0.7f, 0.7f);
+        idleAnimations[1].setScale(0.7f, 0.7f);
+        idleAnimations[2].setScale(0.7f, 0.7f);
     }
 
     public void initialize(BulletManager bulletManager)
