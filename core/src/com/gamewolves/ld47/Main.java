@@ -67,8 +67,8 @@ public class Main extends ApplicationAdapter
 			Gdx.graphics.setWindowedMode(size, size);
 		}
 
-		Width = 320;
-		Height = 320;
+		Width = 200;
+		Height = 200;
 		camera = new OrthographicCamera(Width, Height);
 		viewport = new StretchViewport(Width, Height, camera);
 		camera.update();

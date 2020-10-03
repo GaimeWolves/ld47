@@ -11,7 +11,10 @@ public class AnimatedSprite
 	private Array<TextureRegion> textures;
 	private float time;
 	private float animTime;
-	private Vector2 position;
+	private Vector2 position = new Vector2();
+	private float rotation;
+	private boolean centered;
+	private Vector2 scale = new Vector2(1, 1);
 
 	public AnimatedSprite(Array<TextureRegion> textures, float animTime)
 	{
@@ -55,12 +58,23 @@ public class AnimatedSprite
 		time = (time + deltaTime) % animTime;
 	}
 
-	public void render(SpriteBatch batch)
-	{
+	public void render(SpriteBatch batch) {
+		TextureRegion region = textures.get((int) Math.floor(time / animTime * textures.size));
+
+		float originX = centered ? region.getRegionWidth() * .5f : 0;
+		float originY = centered ? region.getRegionHeight() * .5f : 0;
+
 		batch.draw(
-				textures.get((int) Math.floor(time / animTime * textures.size)),
-				position.x,
-				position.y
+				region,
+				position.x - originX,
+				position.y - originY,
+				originX,
+				originY,
+				region.getRegionWidth(),
+				region.getRegionHeight(),
+				scale.x,
+				scale.y,
+				rotation
 		);
 	}
 
@@ -93,4 +107,14 @@ public class AnimatedSprite
 	{
 		return position.y;
 	}
+
+	public void setRotation(float rotation) { this.rotation = rotation; }
+
+	public void setCentered(boolean centered) { this.centered = centered; }
+
+	public float getTime() { return time; }
+
+	public void setTime(float time) { this.time = time; }
+
+	public void setScale(float x, float y) { scale = new Vector2(x, y); }
 }
