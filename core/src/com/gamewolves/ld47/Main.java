@@ -33,11 +33,11 @@ public class Main extends ApplicationAdapter
 	}
 
 	private static Main Instance; // Singleton
-	public SpriteBatch spriteBatch;
+	public SpriteBatch spriteBatch, UISpriteBatch;
 	public ShapeRenderer shapeRenderer;
 	public PolygonSpriteBatch polySpriteBatch;
-	public Viewport viewport;
-	public Camera camera;
+	public Viewport viewport, UIViewport;
+	public Camera camera, UICamera;
 	public float Width;
 	public float Height;
 	public AssetManager assetManager;
@@ -55,6 +55,7 @@ public class Main extends ApplicationAdapter
 		Instance = this;
 
 		spriteBatch = new SpriteBatch();
+		UISpriteBatch = new SpriteBatch();
 		polySpriteBatch = new PolygonSpriteBatch();
 		shapeRenderer = new ShapeRenderer();
 
@@ -73,6 +74,10 @@ public class Main extends ApplicationAdapter
 		viewport = new StretchViewport(Width, Height, camera);
 		camera.update();
 
+		UICamera = new OrthographicCamera(Width, Height);
+		UIViewport = new StretchViewport(Width, Height, UICamera);
+		UICamera.update();
+
 		assetManager = new AssetManager();
 		LoaderRegistrar.registerLoaders(assetManager);
 
@@ -80,6 +85,8 @@ public class Main extends ApplicationAdapter
 		GamePreferences.init();
 		Physics.init();
 		assetManager.load("font.fnt", BitmapFont.class);
+		assetManager.finishLoading();
+		font = assetManager.get("font.fnt");
 
 		currentState = new Game();
 		currentState.loadResources(assetManager);
@@ -88,6 +95,7 @@ public class Main extends ApplicationAdapter
 	private void update(float deltaTime)
 	{
 		camera.update();
+		UICamera.update();
 		elapsedTime += deltaTime;
 
 		assetManager.update();
@@ -112,6 +120,7 @@ public class Main extends ApplicationAdapter
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		spriteBatch.setProjectionMatrix(camera.combined);
+		UISpriteBatch.setProjectionMatrix(UICamera.combined);
 		shapeRenderer.setProjectionMatrix(camera.combined);
 		polySpriteBatch.setProjectionMatrix(camera.combined);
 
@@ -120,8 +129,10 @@ public class Main extends ApplicationAdapter
 		{
 			if (TransitionHandler.get().inTransition())
 				TransitionHandler.get().render(spriteBatch);
-			else
+			else {
 				currentState.render(spriteBatch);
+				currentState.renderUI(UISpriteBatch);
+			}
 		}
 		else
 			renderLoadingScreen();

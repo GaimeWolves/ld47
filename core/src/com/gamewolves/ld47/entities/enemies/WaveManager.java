@@ -1,10 +1,13 @@
 package com.gamewolves.ld47.entities.enemies;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.gamewolves.ld47.Main;
 import com.gamewolves.ld47.entities.BulletManager;
@@ -67,6 +70,7 @@ public class WaveManager
     private float time = 0;
     private float spawnTime = 0;
     private int spawned = 0;
+    private Label waveLabel, etaLabel, remainingLabel;
 
     public void loadResources(AssetManager assetManager)
     {
@@ -77,6 +81,21 @@ public class WaveManager
     {
         this.bulletManager = bulletManager;
         spawnTime = WAVE_TIME / waves.get(wave).remaining();
+
+        waveLabel = new Label("WAVE 1", new Label.LabelStyle(Main.get().font, Color.WHITE));
+        waveLabel.setAlignment(Align.center);
+        waveLabel.setFontScale(0.25f);
+        waveLabel.setPosition(0, Main.get().Height * .5f - 10, Align.center);
+
+        etaLabel = new Label("REM. 30S", new Label.LabelStyle(Main.get().font, Color.WHITE));
+        etaLabel.setAlignment(Align.center);
+        etaLabel.setFontScale(0.15f);
+        etaLabel.setPosition(waveLabel.getX(Align.center), waveLabel.getY(Align.center) - waveLabel.getPrefHeight(), Align.center);
+
+        remainingLabel = new Label("5 ENEMIES ALIVE", new Label.LabelStyle(Main.get().font, Color.WHITE));
+        remainingLabel.setAlignment(Align.center);
+        remainingLabel.setFontScale(0.15f);
+        remainingLabel.setPosition(etaLabel.getX(Align.center), etaLabel.getY(Align.center) - etaLabel.getPrefHeight(), Align.center);
     }
 
     private void nextWave()
@@ -84,6 +103,7 @@ public class WaveManager
         time = 0;
         spawned = 0;
         wave++;
+        waveLabel.setText("WAVE " + (wave + 1));
         spawnTime = WAVE_TIME / waves.get(wave).remaining();
     }
 
@@ -105,6 +125,16 @@ public class WaveManager
 
         if (time >= WAVE_TIME + 10)
             nextWave();
+        else if (time > WAVE_TIME)
+            etaLabel.setText("ETA. " + (int)(WAVE_TIME + 10 - time));
+        else
+            etaLabel.setText("REM. " + (int)(WAVE_TIME - time));
+
+        remainingLabel.setText(enemies.size + (enemies.size == 1 ? " ENEMY" : " ENEMIES") + " ALIVE");
+
+        waveLabel.setPosition(0, Main.get().Height * .5f - 10, Align.center);
+        etaLabel.setPosition(waveLabel.getX(Align.center), waveLabel.getY(Align.center) - waveLabel.getPrefHeight(), Align.center);
+        remainingLabel.setPosition(etaLabel.getX(Align.center), etaLabel.getY(Align.center) - etaLabel.getPrefHeight(), Align.center);
 
         for (int i = 0; i < enemies.size; i++)
         {
@@ -119,6 +149,13 @@ public class WaveManager
     {
         for (Enemy enemy : enemies)
             enemy.render(batch, playerPos);
+    }
+
+    public void renderUI(SpriteBatch batch)
+    {
+        waveLabel.draw(batch, 1);
+        etaLabel.draw(batch, 1);
+        remainingLabel.draw(batch, 1);
     }
 
     public void dispose(AssetManager assetManager)

@@ -181,12 +181,16 @@ public class Game extends State
 		spriteBatch.begin();
 		tower.render(spriteBatch);
 		waveManager.render(spriteBatch, tower.getPosition());
-		spriteBatch.end();
-
-		spriteBatch.begin();
 		bulletManager.render(spriteBatch);
 		spriteBatch.end();
 		crane.render(spriteBatch);
+	}
+
+	@Override
+	public void renderUI(SpriteBatch spriteBatch) {
+		spriteBatch.begin();
+		waveManager.renderUI(spriteBatch);
+		spriteBatch.end();
 	}
 
 	@Override
