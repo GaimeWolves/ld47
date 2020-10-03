@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.utils.Array;
 import com.gamewolves.ld47.Main;
 import com.gamewolves.ld47.entities.enemies.Enemy;
 import com.gamewolves.ld47.input.InputHandler;
@@ -78,13 +79,15 @@ public class Crane
         }
     }
 
-    private static final float LENGTH = 70;
+    private static final float LENGTH = 45;
 
     private Segment[] segments = new Segment[3];
     private Vector2 head = new Vector2();
     private Vector2 base = new Vector2();
     private Body body;
     private Enemy grabbedEnemy;
+    private Array<Enemy> hoveredEnemies = new Array<>();
+    private boolean isGrabbing;
 
     public void loadResources(AssetManager assetManager)
     {
@@ -101,7 +104,7 @@ public class Crane
         bodyDef.type = BodyDef.BodyType.DynamicBody;
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(10);
+        shape.setRadius(5);
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.isSensor = true;
@@ -109,7 +112,6 @@ public class Crane
 
         body = Physics.getWorld().createBody(bodyDef);
         (body.createFixture(fixtureDef)).setUserData(this);
-        body.setActive(false);
 
         shape.dispose();
     }
@@ -120,13 +122,17 @@ public class Crane
 
         if (Gdx.input.isButtonPressed(Input.Buttons.LEFT))
         {
-            if (!body.isActive())
-                body.setActive(true);
+            isGrabbing = true;
+
+            if (hoveredEnemies.notEmpty() && grabbedEnemy == null)
+            {
+                grabbedEnemy = hoveredEnemies.random();
+                grabbedEnemy.grab();
+            }
         }
         else
         {
-            if (body.isActive())
-                body.setActive(false);
+            isGrabbing = false;
 
             if (grabbedEnemy != null) {
                 grabbedEnemy.release();
@@ -162,22 +168,32 @@ public class Crane
         Main.get().shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         for (Segment segment : segments)
             Main.get().shapeRenderer.line(segment.a, segment.b);
-        Main.get().shapeRenderer.circle(head.x, head.y, 10);
+        Main.get().shapeRenderer.circle(head.x, head.y, 5);
         Main.get().shapeRenderer.end();
     }
 
     public void dispose(AssetManager assetManager)
     {
-
+        Physics.getWorld().destroyBody(body);
     }
 
-    public void setGrabbedEnemy(Enemy enemy)
+    public void addHoveredEnemy(Enemy enemy)
     {
-        grabbedEnemy = enemy;
+        hoveredEnemies.add(enemy);
+    }
+
+    public void removeHoveredEnemy(Enemy enemy)
+    {
+        hoveredEnemies.removeValue(enemy, true);
     }
 
     public Enemy getGrabbedEnemy()
     {
         return grabbedEnemy;
+    }
+
+    public boolean isGrabbing()
+    {
+        return isGrabbing;
     }
 }

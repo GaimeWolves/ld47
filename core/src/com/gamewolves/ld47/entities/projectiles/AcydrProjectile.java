@@ -1,6 +1,8 @@
 package com.gamewolves.ld47.entities.projectiles;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -12,15 +14,18 @@ import com.gamewolves.ld47.Main;
 import com.gamewolves.ld47.entities.BulletManager;
 import com.gamewolves.ld47.physics.Physics;
 
-public class BasicProjectile extends Projectile
+public class AcydrProjectile extends Projectile
 {
     private static final float ACCELERATION = 100;
 
     private Body body;
+    private Sprite sprite;
 
     @Override
-    public void loadResources(AssetManager assetManager) {
-
+    public void loadResources(AssetManager assetManager)
+    {
+        sprite = new Sprite((Texture) assetManager.get("enemies/1/shot.png"));
+        sprite.setOriginCenter();
     }
 
     @Override
@@ -29,6 +34,8 @@ public class BasicProjectile extends Projectile
         super.initialize(bulletManager, direction, position, isPlayerShot);
         damage = 1;
 
+        sprite.setOriginBasedPosition(position.x, position.y);
+
         velocity = direction.cpy();
         velocity.setLength(ACCELERATION);
 
@@ -36,7 +43,7 @@ public class BasicProjectile extends Projectile
         bodyDef.type = BodyDef.BodyType.DynamicBody;
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(2);
+        shape.setRadius(5);
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.isSensor = true;
@@ -54,16 +61,18 @@ public class BasicProjectile extends Projectile
     {
         super.update(deltaTime);
         body.setTransform(position, 0);
+        sprite.setOriginBasedPosition(position.x, position.y);
+        sprite.rotate(deltaTime * 180);
     }
 
     @Override
     public void render(SpriteBatch batch)
     {
-        Main.get().shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        Main.get().shapeRenderer.setColor(0,1,0,1);
-        Main.get().shapeRenderer.circle(position.x, position.y, 2);
-        Main.get().shapeRenderer.setColor(1,1,1,1);
-        Main.get().shapeRenderer.end();
+        batch.end();
+        batch.begin();
+        sprite.draw(batch);
+        batch.end();
+        batch.begin();
     }
 
     @Override

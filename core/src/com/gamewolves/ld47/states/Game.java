@@ -2,6 +2,7 @@ package com.gamewolves.ld47.states;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -16,6 +17,7 @@ import com.gamewolves.ld47.entities.Tower;
 import com.gamewolves.ld47.entities.enemies.Enemy;
 import com.gamewolves.ld47.entities.enemies.WaveManager;
 import com.gamewolves.ld47.entities.projectiles.Projectile;
+import com.gamewolves.ld47.graphics.AnimatedSprite;
 import com.gamewolves.ld47.physics.Physics;
 
 public class Game extends State
@@ -25,12 +27,25 @@ public class Game extends State
 	private BulletManager bulletManager = new BulletManager();
 	private WaveManager waveManager = new WaveManager();
 
+	private Texture backgroundTexture;
+	private AnimatedSprite grassSprite, riverSprite;
+
 	@Override
 	public void loadResources(AssetManager assetManager)
 	{
-		tower.loadResources(assetManager);
-		crane.loadResources(assetManager);
-		waveManager.loadResources(assetManager);
+		assetManager.load("map/map.png", Texture.class);
+		assetManager.load("map/wateranimation_sheet.png", Texture.class);
+		assetManager.load("map/grassanim-Sheet.png", Texture.class);
+
+		assetManager.load("cracter/prof_idle_1.png", Texture.class);
+		assetManager.load("cracter/prof_idle_2.png", Texture.class);
+		assetManager.load("cracter/prof_idle_3.png", Texture.class);
+
+		assetManager.load("enemies/1/back_1.png", Texture.class);
+		assetManager.load("enemies/1/front_1.png", Texture.class);
+		assetManager.load("enemies/1/shoot_1.png", Texture.class);
+		assetManager.load("enemies/1/shot.png", Texture.class);
+		assetManager.load("enemies/1/side_1.png", Texture.class);
 	}
 
 	@Override
@@ -39,9 +54,19 @@ public class Game extends State
 		super.initialize();
 		nextState = new Game();
 
+		tower.loadResources(Main.get().assetManager);
+		crane.loadResources(Main.get().assetManager);
+		waveManager.loadResources(Main.get().assetManager);
+
 		tower.initialize(bulletManager);
 		crane.initialize();
 		waveManager.initialize(bulletManager);
+
+		backgroundTexture = Main.get().assetManager.get("map/map.png");
+		grassSprite = new AnimatedSprite((Texture) Main.get().assetManager.get("map/grassanim-Sheet.png"), backgroundTexture.getWidth(), backgroundTexture.getHeight(), 2);
+		riverSprite = new AnimatedSprite((Texture) Main.get().assetManager.get("map/wateranimation_sheet.png"), backgroundTexture.getWidth(), backgroundTexture.getHeight(), 1);
+		grassSprite.setPosition(-backgroundTexture.getWidth() * .5f, -backgroundTexture.getHeight() * .5f);
+		riverSprite.setPosition(-backgroundTexture.getWidth() * .5f, -backgroundTexture.getHeight() * .5f);
 
 		Physics.getWorld().setContactListener(new ContactListener() {
 			@Override
@@ -50,13 +75,12 @@ public class Game extends State
 				Object objectB = contact.getFixtureB().getUserData();
 
 				if (objectA instanceof Crane || objectB instanceof Crane) {
-					if (crane.getGrabbedEnemy() == null) {
-						if (objectA instanceof Enemy || objectB instanceof Enemy) {
-							Enemy enemy = (Enemy)(objectA instanceof Enemy ? objectA : objectB);
-
-							crane.setGrabbedEnemy(enemy);
-							enemy.grab();
-						}
+					if (objectA instanceof Enemy || objectB instanceof Enemy) {
+						Enemy enemy = (Enemy) (objectA instanceof Enemy ? objectA : objectB);
+						crane.addHoveredEnemy(enemy);
+					} else if (objectA instanceof Projectile || objectB instanceof Projectile) {
+						Projectile projectile = (Projectile) (objectA instanceof Projectile ? objectA : objectB);
+						projectile.setDisposable();
 					}
 				}
 				else if (objectA instanceof Tower || objectB instanceof Tower)
@@ -74,6 +98,8 @@ public class Game extends State
 						{
 							// Todo: gameover
 							System.out.println("Gem ovär");
+
+							projectile.setDisposable();
 						}
 					}
 				}
@@ -95,7 +121,15 @@ public class Game extends State
 
 			@Override
 			public void endContact(Contact contact) {
+				Object objectA = contact.getFixtureA().getUserData();
+				Object objectB = contact.getFixtureB().getUserData();
 
+				if (objectA instanceof Crane || objectB instanceof Crane) {
+					if (objectA instanceof Enemy || objectB instanceof Enemy) {
+						Enemy enemy = (Enemy) (objectA instanceof Enemy ? objectA : objectB);
+						crane.removeHoveredEnemy(enemy);
+					}
+				}
 			}
 
 			@Override
@@ -113,7 +147,7 @@ public class Game extends State
 	@Override
 	public void update(float deltaTime)
 	{
-		Vector2 pos = tower.getPosition();
+		Vector2 pos = tower.getPosition().scl(1.7f);
 		Vector2 cam = new Vector2(Main.get().camera.position.x, Main.get().camera.position.y);
 		Vector2 rem = pos.cpy().sub(cam);
 		rem.scl(deltaTime * 3);
@@ -126,15 +160,29 @@ public class Game extends State
 		crane.update(deltaTime);
 		bulletManager.update(deltaTime);
 		waveManager.update(deltaTime, tower.getPosition());
+
+		grassSprite.update(deltaTime);
+		riverSprite.update(deltaTime);
 	}
 
 	@Override
 	public void render(SpriteBatch spriteBatch)
 	{
+		spriteBatch.begin();
+		spriteBatch.draw(backgroundTexture, -backgroundTexture.getWidth() * .5f, -backgroundTexture.getHeight() * .5f);
+		grassSprite.render(spriteBatch);
+		riverSprite.render(spriteBatch);
+		spriteBatch.end();
+
+		spriteBatch.begin();
 		tower.render(spriteBatch);
-		crane.render(spriteBatch);
-		bulletManager.render(spriteBatch);
 		waveManager.render(spriteBatch, tower.getPosition());
+		spriteBatch.end();
+
+		spriteBatch.begin();
+		bulletManager.render(spriteBatch);
+		spriteBatch.end();
+		crane.render(spriteBatch);
 	}
 
 	@Override
