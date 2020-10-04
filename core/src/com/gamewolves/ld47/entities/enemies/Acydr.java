@@ -54,12 +54,12 @@ public class Acydr extends Enemy
     }
 
     @Override
-    public void initialize(BulletManager bulletManager, Vector2 position)
+    public void initialize(BulletManager bulletManager, Vector2 position, WaveManager waveManager)
     {
+        super.initialize(bulletManager, position, waveManager);
         state = State.Walking;
-        this.position = position;
-        this.bulletManager = bulletManager;
         health = 3;
+        contactDamage = 3;
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
@@ -169,6 +169,10 @@ public class Acydr extends Enemy
     {
         return new Vector2(400, 400).rotate(MathUtils.random(360));
     }
+
+    @Override
+    public void repell(Vector2 towerPos)
+    { }
 
     @Override
     public void grab() {

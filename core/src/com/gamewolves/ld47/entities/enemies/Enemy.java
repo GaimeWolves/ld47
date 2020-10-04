@@ -11,17 +11,24 @@ public abstract class Enemy
     protected boolean isDisposable;
     protected Vector2 position;
     protected BulletManager bulletManager;
+    protected WaveManager waveManager;
     protected float contactDamage;
     protected boolean isGrabbed;
     protected boolean isBeingLasered;
 
     public abstract void loadResources(AssetManager assetManager);
-    public abstract void initialize(BulletManager bulletManager, Vector2 position);
+
+    public void initialize(BulletManager bulletManager, Vector2 position, WaveManager waveManager)
+    {
+        this.bulletManager = bulletManager;
+        this.waveManager = waveManager;
+        this.position = position;
+    }
 
     public void update(float deltaTime, Vector2 playerPos)
     {
         if (isBeingLasered)
-            hit(deltaTime * 5);
+            hit(deltaTime * 10);
     }
 
     public abstract void render(SpriteBatch batch, Vector2 playerPos);
@@ -36,6 +43,8 @@ public abstract class Enemy
     {
         isGrabbed = false;
     }
+
+    public abstract void repell(Vector2 towerPos);
 
     public void setLasered(boolean lasered) { isBeingLasered = lasered; }
 
@@ -57,4 +66,6 @@ public abstract class Enemy
     public boolean isDisposable() { return isDisposable; }
 
     public boolean isGrabbed() { return isGrabbed; }
+
+    public float getContactDamage() { return contactDamage; }
 }

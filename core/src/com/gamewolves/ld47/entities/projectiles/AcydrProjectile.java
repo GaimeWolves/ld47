@@ -34,7 +34,7 @@ public class AcydrProjectile extends Projectile
     public void initialize(BulletManager bulletManager, Vector2 direction, Vector2 position, boolean isPlayerShot)
     {
         super.initialize(bulletManager, direction, position, isPlayerShot);
-        damage = 1;
+        damage = 5;
 
         sprite.setOriginBasedPosition(position.x, position.y);
 

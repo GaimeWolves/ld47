@@ -58,7 +58,7 @@ public class ExplosiveProjectile extends Projectile
         bodyDef.type = BodyDef.BodyType.DynamicBody;
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(2);
+        shape.setRadius(4);
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.isSensor = true;

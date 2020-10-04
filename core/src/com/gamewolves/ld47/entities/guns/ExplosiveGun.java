@@ -12,7 +12,7 @@ import com.gamewolves.ld47.entities.projectiles.ExplosiveProjectile;
 
 public class ExplosiveGun extends Gun
 {
-    private static final float FIRE_COOLDOWN = 1.f;
+    private static final float FIRE_COOLDOWN = 2.f;
 
     private float cooldownTime = 0;
 

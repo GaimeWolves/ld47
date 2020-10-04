@@ -2,7 +2,6 @@ package com.gamewolves.ld47.entities.projectiles;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -10,13 +9,12 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.utils.Array;
-import com.gamewolves.ld47.Main;
 import com.gamewolves.ld47.entities.BulletManager;
 import com.gamewolves.ld47.entities.enemies.Enemy;
 import com.gamewolves.ld47.graphics.AnimatedSprite;
 import com.gamewolves.ld47.physics.Physics;
 
-public class Explosion extends Projectile
+public class VoxylExplosion extends Projectile
 {
     private Body body;
     private AnimatedSprite explosion;
@@ -25,7 +23,7 @@ public class Explosion extends Projectile
     @Override
     public void loadResources(AssetManager assetManager)
     {
-        Texture explosionTexture = assetManager.get("cracter/weapons/explodeanim_3.png");
+        Texture explosionTexture = assetManager.get("enemies/2/explode_2.png");
 
         explosion = new AnimatedSprite(explosionTexture, 16, 16, .5f);
         explosion.setCentered(true);
@@ -36,7 +34,7 @@ public class Explosion extends Projectile
     public void initialize(BulletManager bulletManager, Vector2 direction, Vector2 position, boolean isPlayerShot)
     {
         super.initialize(bulletManager, direction, position, isPlayerShot);
-        damage = 5;
+        damage = 10;
         canBeDisposed = false;
 
         explosion.setCentered(true);

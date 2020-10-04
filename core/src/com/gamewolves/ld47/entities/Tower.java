@@ -3,14 +3,16 @@ package com.gamewolves.ld47.entities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.gamewolves.ld47.Main;
 import com.gamewolves.ld47.entities.guns.BasicGun;
@@ -20,6 +22,7 @@ import com.gamewolves.ld47.entities.guns.HomingGun;
 import com.gamewolves.ld47.entities.guns.LaserGun;
 import com.gamewolves.ld47.graphics.AnimatedSprite;
 import com.gamewolves.ld47.physics.Physics;
+import com.gamewolves.ld47.utils.MathUtils;
 
 public class Tower
 {
@@ -31,6 +34,7 @@ public class Tower
     private float acceleration = 360;
     private Vector2 position = new Vector2();
     private Body body;
+    private float health = 100;
 
     private BulletManager bulletManager;
 
@@ -40,11 +44,17 @@ public class Tower
     private float animTime = 0;
     private int animation = 0;
 
+    private Texture healthBarBg, healthBar;
+    private Label upgradeLabel;
+    private float textTime;
+
     public void loadResources(AssetManager assetManager)
     {
         Texture idle0 = assetManager.get("cracter/prof_idle_1.png");
         Texture idle1 = assetManager.get("cracter/prof_idle_2.png");
         Texture idle2 = assetManager.get("cracter/prof_idle_3.png");
+        healthBarBg = assetManager.get("cracter/health_bg.png");
+        healthBar = assetManager.get("cracter/health_bar.png");
 
         idleAnimations[0] = new AnimatedSprite(idle0, idle0.getWidth(), idle0.getHeight(), 3f);
         idleAnimations[1] = new AnimatedSprite(idle1, idle0.getWidth(), idle0.getHeight(), 3f);
@@ -57,6 +67,11 @@ public class Tower
         idleAnimations[0].setScale(0.7f, 0.7f);
         idleAnimations[1].setScale(0.7f, 0.7f);
         idleAnimations[2].setScale(0.7f, 0.7f);
+
+        upgradeLabel = new Label("UPGRADE!", new Label.LabelStyle(Main.get().font, Color.WHITE));
+        upgradeLabel.setAlignment(Align.center);
+        upgradeLabel.setFontScale(0.25f);
+        upgradeLabel.setPosition(position.x, position.y + 10, Align.center);
     }
 
     public void initialize(BulletManager bulletManager)
@@ -67,21 +82,6 @@ public class Tower
         basicGun.loadResources(Main.get().assetManager);
         basicGun.initialize(bulletManager, 0);
         guns.add(basicGun);
-
-        LaserGun laserGun = new LaserGun();
-        laserGun.loadResources(Main.get().assetManager);
-        laserGun.initialize(bulletManager, 45);
-        guns.add(laserGun);
-
-        HomingGun homingGun = new HomingGun();
-        homingGun.loadResources(Main.get().assetManager);
-        homingGun.initialize(bulletManager, 90);
-        guns.add(homingGun);
-
-        ExplosiveGun explosiveGun = new ExplosiveGun();
-        explosiveGun.loadResources(Main.get().assetManager);
-        explosiveGun.initialize(bulletManager, -45);
-        guns.add(explosiveGun);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
@@ -138,6 +138,21 @@ public class Tower
             gun.calcActualAngle(angle);
             gun.update(deltaTime, position);
         }
+
+        health += deltaTime;
+        if (health > 100)
+            health = 100;
+
+        upgradeLabel.setPosition(position.x, position.y + 20 - (10 * textTime), Align.center);
+        if (textTime > 0) {
+            textTime -= deltaTime;
+            if (textTime < 0)
+                textTime = 0;
+
+            Color color = new Color();
+            Color.argb8888ToColor(color, MathUtils.HSLtoRGB((textTime * 4) % 1, 1, .5f));
+            upgradeLabel.setColor(color);
+        }
     }
 
     public void render(SpriteBatch batch)
@@ -147,12 +162,55 @@ public class Tower
             gun.render(batch);
     }
 
+    public void renderUiInWorldSpace(SpriteBatch batch)
+    {
+        upgradeLabel.draw(batch, textTime);
+    }
+
+    public void renderUI(SpriteBatch batch)
+    {
+        batch.draw(healthBarBg, 6 - Main.get().Width * .5f, 6 - Main.get().Height * .5f);
+        batch.draw(healthBar, 8 - Main.get().Width * .5f, 8 - Main.get().Height * .5f, 0, 0, (int) (healthBar.getWidth() * (health / 100.f)), healthBar.getHeight());
+    }
+
     public void dispose(AssetManager assetManager)
     {
         Physics.getWorld().destroyBody(body);
 
         for (Gun gun : guns)
             gun.dispose(assetManager);
+    }
+
+    public boolean hit(float damage)
+    {
+        health -= damage;
+        if (health < 0)
+            health = 0;
+        return health <= 0;
+    }
+
+    public void unlockNextGun()
+    {
+        if (guns.size == 1) {
+            HomingGun homingGun = new HomingGun();
+            homingGun.loadResources(Main.get().assetManager);
+            homingGun.initialize(bulletManager, 90);
+            guns.add(homingGun);
+        }
+        else if (guns.size == 2) {
+            ExplosiveGun explosiveGun = new ExplosiveGun();
+            explosiveGun.loadResources(Main.get().assetManager);
+            explosiveGun.initialize(bulletManager, -45);
+            guns.add(explosiveGun);
+        }
+        else {
+            LaserGun laserGun = new LaserGun();
+            laserGun.loadResources(Main.get().assetManager);
+            laserGun.initialize(bulletManager, 45);
+            guns.add(laserGun);
+        }
+
+        textTime = 1;
     }
 
     public Vector2 getPosition()

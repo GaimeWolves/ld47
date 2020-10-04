@@ -12,8 +12,9 @@ public class AnimatedSprite
 	private float time;
 	private float animTime;
 	private Vector2 position = new Vector2();
+	private Vector2 origin = new Vector2();
 	private float rotation;
-	private boolean centered;
+	private boolean centered, useOrigin;
 	private Vector2 scale = new Vector2(1, 1);
 
 	public AnimatedSprite(Array<TextureRegion> textures, float animTime)
@@ -64,6 +65,11 @@ public class AnimatedSprite
 		float originX = centered ? region.getRegionWidth() * .5f : 0;
 		float originY = centered ? region.getRegionHeight() * .5f : 0;
 
+		if (useOrigin) {
+			originX = origin.x;
+			originY = origin.y;
+		}
+
 		batch.draw(
 				region,
 				position.x - originX,
@@ -86,6 +92,16 @@ public class AnimatedSprite
 	public void setPosition(float x, float y)
 	{
 		this.position = new Vector2(x, y);
+	}
+
+	public void setOrigin(Vector2 position)
+	{
+		this.origin = position;
+	}
+
+	public void setOrigin(float x, float y)
+	{
+		this.origin = new Vector2(x, y);
 	}
 
 	public float getWidth()
@@ -111,6 +127,8 @@ public class AnimatedSprite
 	public void setRotation(float rotation) { this.rotation = rotation; }
 
 	public void setCentered(boolean centered) { this.centered = centered; }
+
+	public void setUseOrigin(boolean use) { this.useOrigin = use; }
 
 	public float getTime() { return time; }
 

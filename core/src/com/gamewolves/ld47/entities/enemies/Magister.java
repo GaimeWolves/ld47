@@ -3,6 +3,7 @@ package com.gamewolves.ld47.entities.enemies;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -11,7 +12,6 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.utils.Array;
 import com.gamewolves.ld47.Main;
 import com.gamewolves.ld47.entities.BulletManager;
-import com.gamewolves.ld47.entities.projectiles.AcydrProjectile;
 import com.gamewolves.ld47.entities.projectiles.VoxylExplosion;
 import com.gamewolves.ld47.graphics.AnimatedSprite;
 import com.gamewolves.ld47.physics.Physics;
@@ -19,33 +19,23 @@ import com.gamewolves.ld47.physics.Physics;
 /**
  * Name courtesy of Florian
  */
-public class Voxyl extends Enemy
+public class Magister extends Enemy
 {
-    private static float CHARGE_TIME = 1f;
-    private static float VELOCITY = 50;
+    private static final float CHARGE_TIME = 4f;
+    private static final float VELOCITY = 25;
+    private static final int SPAWN_COUNT = 8;
 
-    private static final Array<Vector2> SpawnPositions = new Array<>(new Vector2[]{
-            new Vector2(0, 200),
-            new Vector2(20, 180),
-            new Vector2(60, 140),
-            new Vector2(110, 120),
-            new Vector2(-70, -170),
-            new Vector2(-110, -130),
-            new Vector2(-130, -110),
-            new Vector2(-180, -100)
-    });
-
-    private AnimatedSprite front, side, back, spawn, hatch, charge;
+    private AnimatedSprite front, side, charge;
 
     private enum State
     {
         Walking,
-        Spawning,
         Charging
     }
 
     private State state;
-    private float chargeTime = 0, spawnTime = 0;
+    private float chargeTime = 0;
+    private int spawned;
     private Body body;
 
     private Vector2 lastDir = new Vector2();
@@ -53,37 +43,24 @@ public class Voxyl extends Enemy
     @Override
     public void loadResources(AssetManager assetManager)
     {
-        front = new AnimatedSprite((Texture) assetManager.get("enemies/2/front_2.png"), 32, 64, 1f);
-        side = new AnimatedSprite((Texture) assetManager.get("enemies/2/side_2.png"), 32, 64, 1f);
-        back = new AnimatedSprite((Texture) assetManager.get("enemies/2/back_2.png"), 32, 64, 1f);
-        spawn = new AnimatedSprite((Texture) assetManager.get("enemies/2/enemy_2_spawnanim.png"), 32, 32, 1f);
-        hatch = new AnimatedSprite((Texture) assetManager.get("enemies/2/ausschluepf_2.png"), 32, 32, 1f);
-        charge = new AnimatedSprite((Texture) assetManager.get("enemies/2/charge_2.png"), 32, 32, CHARGE_TIME);
+        front = new AnimatedSprite((Texture) assetManager.get("enemies/3/hex_front_back_anim.png"), 16, 32, .25f);
+        side = new AnimatedSprite((Texture) assetManager.get("enemies/3/hex_side_anim.png"), 16, 32, .25f);
+        charge = new AnimatedSprite((Texture) assetManager.get("enemies/3/hex_beschwör.png"), 16, 32, CHARGE_TIME);
 
         front.setUseOrigin(true);
         side.setUseOrigin(true);
-        back.setUseOrigin(true);
-        spawn.setCentered(true);
-        hatch.setCentered(true);
-        charge.setCentered(true);
+        charge.setUseOrigin(true);
 
         front.setOrigin(front.getWidth() * .5f, front.getHeight() * .25f);
         side.setOrigin(side.getWidth() * .5f, side.getHeight() * .25f);
-        back.setOrigin(back.getWidth() * .5f, back.getHeight() * .25f);
-
-        front.setScale(.5f, .5f);
-        side.setScale(.5f, .5f);
-        back.setScale(.5f, .5f);
-        spawn.setScale(.5f, .5f);
-        hatch.setScale(.5f, .5f);
-        charge.setScale(.5f, .5f);
+        charge.setOrigin(charge.getWidth() * .5f, charge.getHeight() * .25f);
     }
 
     @Override
     public void initialize(BulletManager bulletManager, Vector2 position, WaveManager waveManager)
     {
         super.initialize(bulletManager, position, waveManager);
-        state = State.Spawning;
+        state = State.Walking;
         health = 10;
         contactDamage = 3;
 
@@ -110,29 +87,19 @@ public class Voxyl extends Enemy
         super.update(deltaTime, playerPos);
 
         front.setPosition(position);
-        back.setPosition(position);
         side.setPosition(position);
-        spawn.setPosition(position);
-        hatch.setPosition(position);
         charge.setPosition(position);
 
         if (isGrabbed)
             return;
 
-        if (state == State.Spawning) {
-            spawn.update(deltaTime);
-            hatch.update(deltaTime);
-
-            spawnTime += deltaTime;
-            if (spawnTime > 2f)
-                state = State.Walking;
-        }
-        else if (state == State.Walking)
+        if (state == State.Walking)
         {
-            if (position.dst2(playerPos) <= 500) {
+            if (position.dst2(playerPos) <= 15000) {
                 state = State.Charging;
                 charge.setTime(0);
                 chargeTime = 0;
+                spawned = 0;
                 return;
             }
 
@@ -144,7 +111,6 @@ public class Voxyl extends Enemy
             body.setTransform(position, 0);
 
             front.update(deltaTime);
-            back.update(deltaTime);
             side.update(deltaTime);
         }
         else
@@ -152,47 +118,47 @@ public class Voxyl extends Enemy
             chargeTime += deltaTime;
             charge.update(deltaTime);
 
-            if (chargeTime >= CHARGE_TIME)
-            {
-                isDisposable = true;
-
-                VoxylExplosion projectile = new VoxylExplosion();
-                projectile.loadResources(Main.get().assetManager);
-                projectile.initialize(bulletManager, new Vector2(), position, false);
+            if (chargeTime > spawned * (CHARGE_TIME / 8)) {
+                Vector2 pos = Vector2.X.cpy().setAngle(spawned * 45 + 90).setLength(16).add(position);
+                waveManager.addEnemy(new Crab(), pos);
+                spawned++;
             }
+
+            if (chargeTime >= CHARGE_TIME)
+                state = State.Walking;
         }
     }
 
     @Override
     public void render(SpriteBatch batch, Vector2 playerPos)
     {
-        if (state == State.Spawning) {
-            if (spawnTime < 1.f)
-                spawn.render(batch);
-            else
-                hatch.render(batch);
-        }
-        else if (state == State.Walking)
+        if (state == State.Walking)
         {
             float angle = lastDir.angle();
 
             if (angle <= 45)
             {
-                side.setScale(.5f, .5f);
+                side.setScale(1, 1);
                 side.render(batch);
             }
             else if (angle <= 135)
+            {
+                front.setScale(-1, 1);
                 front.render(batch);
+            }
             else if (angle <= 225)
             {
-                side.setScale(-.5f, .5f);
+                side.setScale(-1, 1);
                 side.render(batch);
             }
             else if (angle <= 315)
-                back.render(batch);
+            {
+                front.setScale(1, 1);
+                front.render(batch);
+            }
             else
             {
-                side.setScale(.5f, .5f);
+                side.setScale(1, 1);
                 side.render(batch);
             }
         }
@@ -210,7 +176,7 @@ public class Voxyl extends Enemy
 
     public static Vector2 getValidSpawnPosition()
     {
-        return SpawnPositions.random();
+        return new Vector2(400, 400).rotate(MathUtils.random(360));
     }
 
     @Override

@@ -20,8 +20,8 @@ import com.gamewolves.ld47.physics.Physics;
 
 public class LaserGun extends Gun
 {
-    private static final float FIRE_COOLDOWN = 2.f;
-    private static final float ACTIVE_TIME = 1.f;
+    private static final float FIRE_COOLDOWN = 4.f;
+    private static final float ACTIVE_TIME = 2.f;
 
     private float cooldownTime = 0;
 
