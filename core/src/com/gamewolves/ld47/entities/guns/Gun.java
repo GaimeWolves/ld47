@@ -16,7 +16,7 @@ public abstract class Gun
 
     public abstract void loadResources(AssetManager assetManager);
     public abstract void initialize(BulletManager bulletManager, float fixedAngle);
-    public abstract void update(float deltaTime);
+    public abstract void update(float deltaTime, Vector2 towerPos);
     public abstract void render(SpriteBatch batch);
     public abstract void dispose(AssetManager assetManager);
 

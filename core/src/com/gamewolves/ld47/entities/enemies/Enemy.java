@@ -13,10 +13,17 @@ public abstract class Enemy
     protected BulletManager bulletManager;
     protected float contactDamage;
     protected boolean isGrabbed;
+    protected boolean isBeingLasered;
 
     public abstract void loadResources(AssetManager assetManager);
     public abstract void initialize(BulletManager bulletManager, Vector2 position);
-    public abstract void update(float deltaTime, Vector2 playerPos);
+
+    public void update(float deltaTime, Vector2 playerPos)
+    {
+        if (isBeingLasered)
+            hit(deltaTime * 3);
+    }
+
     public abstract void render(SpriteBatch batch, Vector2 playerPos);
     public abstract void dispose(AssetManager assetManager);
 
@@ -29,6 +36,8 @@ public abstract class Enemy
     {
         isGrabbed = false;
     }
+
+    public void setLasered(boolean lasered) { isBeingLasered = lasered; }
 
     public void setPosition(Vector2 pos)
     {

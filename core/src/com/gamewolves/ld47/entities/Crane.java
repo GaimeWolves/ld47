@@ -3,6 +3,9 @@ package com.gamewolves.ld47.entities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
@@ -89,9 +92,21 @@ public class Crane
     private Array<Enemy> hoveredEnemies = new Array<>();
     private boolean isGrabbing;
 
+    private Sprite grabberArm, grabber;
+    private Texture grabbedTexture, grabberTexture, grabbingTexture;
+
     public void loadResources(AssetManager assetManager)
     {
+        Texture armTexture = assetManager.get("map/grap/grab_arm.png");
+        grabbedTexture = assetManager.get("map/grap/grab_grab_grabbed.png");
+        grabberTexture = assetManager.get("map/grap/grab_grab_opened.png");
+        grabbingTexture = assetManager.get("map/grap/grab_grab.png");
 
+        grabberArm = new Sprite(armTexture);
+        grabberArm.setOrigin(5, grabberArm.getHeight() * .5f);
+
+        grabber = new Sprite(grabberTexture);
+        grabber.setOrigin(0, grabber.getHeight() * .5f);
     }
 
     public void initialize()
@@ -165,11 +180,24 @@ public class Crane
 
     public void render(SpriteBatch batch)
     {
-        Main.get().shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         for (Segment segment : segments)
-            Main.get().shapeRenderer.line(segment.a, segment.b);
-        Main.get().shapeRenderer.circle(head.x, head.y, 5);
-        Main.get().shapeRenderer.end();
+        {
+            grabberArm.setRotation(segment.angle);
+            grabberArm.setOriginBasedPosition(segment.a.x, segment.a.y);
+            grabberArm.draw(batch);
+        }
+
+        if (grabbedEnemy != null)
+            grabber.setTexture(grabbedTexture);
+        else if (isGrabbing)
+            grabber.setTexture(grabbingTexture);
+        else
+            grabber.setTexture(grabberTexture);
+
+        Segment last = segments[segments.length - 1];
+        grabber.setRotation(last.angle);
+        grabber.setOriginBasedPosition(last.b.x, last.b.y);
+        grabber.draw(batch);
     }
 
     public void dispose(AssetManager assetManager)

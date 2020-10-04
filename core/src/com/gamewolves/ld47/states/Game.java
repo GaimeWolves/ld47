@@ -16,6 +16,7 @@ import com.gamewolves.ld47.entities.Crane;
 import com.gamewolves.ld47.entities.Tower;
 import com.gamewolves.ld47.entities.enemies.Enemy;
 import com.gamewolves.ld47.entities.enemies.WaveManager;
+import com.gamewolves.ld47.entities.guns.LaserGun;
 import com.gamewolves.ld47.entities.projectiles.Projectile;
 import com.gamewolves.ld47.graphics.AnimatedSprite;
 import com.gamewolves.ld47.physics.Physics;
@@ -50,6 +51,15 @@ public class Game extends State
 		assetManager.load("cracter/weapons/weapon_1.png", Texture.class);
 		assetManager.load("cracter/weapons/ws_1.png", Texture.class);
 		assetManager.load("cracter/weapons/wsanim_1.png", Texture.class);
+
+		assetManager.load("cracter/weapons/weapon_4.png", Texture.class);
+		assetManager.load("cracter/weapons/laser_start.png", Texture.class);
+		assetManager.load("cracter/weapons/laser.png", Texture.class);
+
+		assetManager.load("map/grap/grab_arm.png", Texture.class);
+		assetManager.load("map/grap/grab_grab_grabbed.png", Texture.class);
+		assetManager.load("map/grap/grab_grab_opened.png", Texture.class);
+		assetManager.load("map/grap/grab_grab.png", Texture.class);
 	}
 
 	@Override
@@ -109,16 +119,21 @@ public class Game extends State
 				}
 				else if (objectA instanceof Enemy || objectB instanceof Enemy)
 				{
+					Enemy enemy = (Enemy)(objectA instanceof Enemy ? objectA : objectB);
+
 					if (objectA instanceof Projectile || objectB instanceof Projectile)
 					{
 						Projectile projectile = (Projectile) (objectA instanceof Projectile ? objectA : objectB);
-						Enemy enemy = (Enemy)(objectA instanceof Enemy ? objectA : objectB);
 
 						if (projectile.isPlayerShot())
 						{
 							enemy.hit(projectile.getDamage());
 							projectile.setDisposable();
 						}
+					}
+					else if (objectA instanceof LaserGun || objectB instanceof LaserGun)
+					{
+						enemy.setLasered(true);
 					}
 				}
 			}
@@ -132,6 +147,14 @@ public class Game extends State
 					if (objectA instanceof Enemy || objectB instanceof Enemy) {
 						Enemy enemy = (Enemy) (objectA instanceof Enemy ? objectA : objectB);
 						crane.removeHoveredEnemy(enemy);
+					}
+				}
+				else if (objectA instanceof Enemy || objectB instanceof Enemy)
+				{
+					if (objectA instanceof LaserGun || objectB instanceof LaserGun)
+					{
+						Enemy enemy = (Enemy)(objectA instanceof Enemy ? objectA : objectB);
+						enemy.setLasered(false);
 					}
 				}
 			}
@@ -176,14 +199,11 @@ public class Game extends State
 		spriteBatch.draw(backgroundTexture, -backgroundTexture.getWidth() * .5f, -backgroundTexture.getHeight() * .5f);
 		//grassSprite.render(spriteBatch);
 		//riverSprite.render(spriteBatch);
-		spriteBatch.end();
-
-		spriteBatch.begin();
 		tower.render(spriteBatch);
 		waveManager.render(spriteBatch, tower.getPosition());
 		bulletManager.render(spriteBatch);
-		spriteBatch.end();
 		crane.render(spriteBatch);
+		spriteBatch.end();
 	}
 
 	@Override

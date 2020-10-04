@@ -80,6 +80,8 @@ public class Acydr extends Enemy
     @Override
     public void update(float deltaTime, Vector2 playerPos)
     {
+        super.update(deltaTime, playerPos);
+
         front.setPosition(position);
         back.setPosition(position);
         side.setPosition(position);

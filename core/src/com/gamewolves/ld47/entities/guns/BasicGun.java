@@ -35,9 +35,17 @@ public class BasicGun extends Gun
     }
 
     @Override
-    public void update(float deltaTime)
+    public void update(float deltaTime, Vector2 towerPos)
     {
         cooldownTime += deltaTime;
+        towerPosition = towerPos;
+
+        sprite.setOriginBasedPosition(towerPosition.x, towerPosition.y);
+        sprite.setRotation(actualAngle);
+
+        shotOffset = new Vector2(1, 0);
+        shotOffset.setAngle(actualAngle);
+        shotOffset.scl(8);
 
         if (cooldownTime > FIRE_COOLDOWN)
         {
@@ -56,19 +64,7 @@ public class BasicGun extends Gun
     @Override
     public void render(SpriteBatch batch)
     {
-        Vector2 towerPos = new Vector2(1, 0);
-        towerPos.setLength(Tower.RADIUS);
-        towerPos.setAngle(towerAngle);
-
-        towerPosition = towerPos;
-
-        sprite.setOriginBasedPosition(towerPosition.x, towerPosition.y);
-        sprite.setRotation(actualAngle);
         sprite.draw(batch);
-
-        shotOffset = new Vector2(1, 0);
-        shotOffset.setAngle(actualAngle);
-        shotOffset.scl(8);
     }
 
     @Override
