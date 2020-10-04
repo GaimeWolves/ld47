@@ -112,8 +112,9 @@ public class Crane
     public void initialize()
     {
         segments[0] = new Segment(base.x, base.y, LENGTH);
-        for (int i = 1; i < segments.length; i++)
-            segments[i] = new Segment(segments[i - 1], LENGTH);
+        for (int i = 1; i < segments.length; i++) {
+            segments[i] = new Segment(segments[i - 1], i == segments.length - 1 ? LENGTH + 15 : LENGTH);
+        }
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
@@ -139,7 +140,10 @@ public class Crane
         {
             isGrabbing = true;
 
-            if (hoveredEnemies.notEmpty() && (grabbedEnemy == null || grabbedEnemy.isDisposable()))
+            if (grabbedEnemy != null && grabbedEnemy.isDisposable())
+                grabbedEnemy = null;
+
+            if (hoveredEnemies.notEmpty() && grabbedEnemy == null)
             {
                 grabbedEnemy = hoveredEnemies.random();
                 grabbedEnemy.grab();
@@ -196,7 +200,8 @@ public class Crane
 
         Segment last = segments[segments.length - 1];
         grabber.setRotation(last.angle);
-        grabber.setOriginBasedPosition(last.b.x, last.b.y);
+        Vector2 dir = last.b.cpy().sub(last.a).nor();
+        grabber.setOriginBasedPosition(last.b.x - dir.x * 15, last.b.y - dir.y * 15);
         grabber.draw(batch);
     }
 

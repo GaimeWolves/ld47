@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.gamewolves.ld47.Main;
+import com.gamewolves.ld47.entities.enemies.Enemy;
 import com.gamewolves.ld47.entities.projectiles.Projectile;
 
 public class BulletManager
@@ -16,11 +17,11 @@ public class BulletManager
         projectiles.add(projectile);
     }
 
-    public void update(float deltaTime)
+    public void update(float deltaTime, Vector2 towerPos, Array<Enemy> enemies)
     {
         for (int i = 0; i < projectiles.size; i++)
         {
-            projectiles.get(i).update(deltaTime);
+            projectiles.get(i).update(deltaTime, towerPos, enemies);
 
             // Check bounds
             Vector2 pos = projectiles.get(i).getPosition();

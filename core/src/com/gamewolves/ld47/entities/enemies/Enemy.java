@@ -21,7 +21,7 @@ public abstract class Enemy
     public void update(float deltaTime, Vector2 playerPos)
     {
         if (isBeingLasered)
-            hit(deltaTime * 3);
+            hit(deltaTime * 5);
     }
 
     public abstract void render(SpriteBatch batch, Vector2 playerPos);
@@ -44,6 +44,8 @@ public abstract class Enemy
         position = pos;
     }
 
+    public Vector2 getPosition() { return position.cpy(); }
+
     public void hit(float damage)
     {
         health -= damage;
@@ -53,4 +55,6 @@ public abstract class Enemy
     }
 
     public boolean isDisposable() { return isDisposable; }
+
+    public boolean isGrabbed() { return isGrabbed; }
 }

@@ -35,7 +35,7 @@ public class Game extends State
 	public void loadResources(AssetManager assetManager)
 	{
 		assetManager.load("map/map.png", Texture.class);
-		//assetManager.load("map/wateranimation_sheet.png", Texture.class);
+		assetManager.load("map/wateranim.png", Texture.class);
 		assetManager.load("map/grassanim-Sheet.png", Texture.class);
 
 		assetManager.load("cracter/prof_idle_1.png", Texture.class);
@@ -48,9 +48,25 @@ public class Game extends State
 		assetManager.load("enemies/1/shot.png", Texture.class);
 		assetManager.load("enemies/1/side_1.png", Texture.class);
 
+		assetManager.load("enemies/2/back_2.png", Texture.class);
+		assetManager.load("enemies/2/front_2.png", Texture.class);
+		assetManager.load("enemies/2/enemy_2_spawnanim.png", Texture.class);
+		assetManager.load("enemies/2/ausschluepf_2.png", Texture.class);
+		assetManager.load("enemies/2/explode_2.png", Texture.class);
+		assetManager.load("enemies/2/side_2.png", Texture.class);
+
 		assetManager.load("cracter/weapons/weapon_1.png", Texture.class);
 		assetManager.load("cracter/weapons/ws_1.png", Texture.class);
 		assetManager.load("cracter/weapons/wsanim_1.png", Texture.class);
+
+		assetManager.load("cracter/weapons/weapon_2.png", Texture.class);
+		assetManager.load("cracter/weapons/ws_2.png", Texture.class);
+		assetManager.load("cracter/weapons/wsanim_2.png", Texture.class);
+
+		assetManager.load("cracter/weapons/weapon_3.png", Texture.class);
+		assetManager.load("cracter/weapons/ws_3.png", Texture.class);
+		assetManager.load("cracter/weapons/wsanim_3.png", Texture.class);
+		assetManager.load("cracter/weapons/explodeanim_3.png", Texture.class);
 
 		assetManager.load("cracter/weapons/weapon_4.png", Texture.class);
 		assetManager.load("cracter/weapons/laser_start.png", Texture.class);
@@ -77,10 +93,10 @@ public class Game extends State
 		waveManager.initialize(bulletManager);
 
 		backgroundTexture = Main.get().assetManager.get("map/map.png");
-		grassSprite = new AnimatedSprite((Texture) Main.get().assetManager.get("map/grassanim-Sheet.png"), backgroundTexture.getWidth(), backgroundTexture.getHeight(), 2);
-		//riverSprite = new AnimatedSprite((Texture) Main.get().assetManager.get("map/wateranimation_sheet.png"), backgroundTexture.getWidth(), backgroundTexture.getHeight(), 1);
+		grassSprite = new AnimatedSprite((Texture) Main.get().assetManager.get("map/grassanim-Sheet.png"), 320, 320, 2);
+		riverSprite = new AnimatedSprite((Texture) Main.get().assetManager.get("map/wateranim.png"), 600, 440, 1);
 		grassSprite.setPosition(-backgroundTexture.getWidth() * .5f, -backgroundTexture.getHeight() * .5f);
-		//riverSprite.setPosition(-backgroundTexture.getWidth() * .5f, -backgroundTexture.getHeight() * .5f);
+		riverSprite.setPosition(-backgroundTexture.getWidth() * .5f, -backgroundTexture.getHeight() * .5f);
 
 		Physics.getWorld().setContactListener(new ContactListener() {
 			@Override
@@ -94,15 +110,20 @@ public class Game extends State
 						crane.addHoveredEnemy(enemy);
 					} else if (objectA instanceof Projectile || objectB instanceof Projectile) {
 						Projectile projectile = (Projectile) (objectA instanceof Projectile ? objectA : objectB);
-						projectile.setDisposable();
+						if (projectile.canBeDisposed())
+							projectile.setDisposable();
 					}
 				}
 				else if (objectA instanceof Tower || objectB instanceof Tower)
 				{
 					if (objectA instanceof Enemy || objectB instanceof Enemy)
 					{
-						// Todo: gameover
-						System.out.println("Gem ovär");
+						Enemy enemy = (Enemy)(objectA instanceof Enemy ? objectA : objectB);
+
+						if (!enemy.isGrabbed()) {
+							// Todo: gameover
+							System.out.println("Gem ovär");
+						}
 					}
 					else if (objectA instanceof Projectile || objectB instanceof Projectile)
 					{
@@ -113,7 +134,8 @@ public class Game extends State
 							// Todo: gameover
 							System.out.println("Gem ovär");
 
-							projectile.setDisposable();
+							if (projectile.canBeDisposed())
+								projectile.setDisposable();
 						}
 					}
 				}
@@ -128,7 +150,8 @@ public class Game extends State
 						if (projectile.isPlayerShot())
 						{
 							enemy.hit(projectile.getDamage());
-							projectile.setDisposable();
+							if (projectile.canBeDisposed())
+								projectile.setDisposable();
 						}
 					}
 					else if (objectA instanceof LaserGun || objectB instanceof LaserGun)
@@ -185,11 +208,11 @@ public class Game extends State
 
 		tower.update(deltaTime);
 		crane.update(deltaTime);
-		bulletManager.update(deltaTime);
+		bulletManager.update(deltaTime, tower.getPosition(), waveManager.getEnemies());
 		waveManager.update(deltaTime, tower.getPosition());
 
 		grassSprite.update(deltaTime);
-		//riverSprite.update(deltaTime);
+		riverSprite.update(deltaTime);
 	}
 
 	@Override
@@ -197,8 +220,8 @@ public class Game extends State
 	{
 		spriteBatch.begin();
 		spriteBatch.draw(backgroundTexture, -backgroundTexture.getWidth() * .5f, -backgroundTexture.getHeight() * .5f);
-		//grassSprite.render(spriteBatch);
-		//riverSprite.render(spriteBatch);
+		grassSprite.render(spriteBatch);
+		riverSprite.render(spriteBatch);
 		tower.render(spriteBatch);
 		waveManager.render(spriteBatch, tower.getPosition());
 		bulletManager.render(spriteBatch);

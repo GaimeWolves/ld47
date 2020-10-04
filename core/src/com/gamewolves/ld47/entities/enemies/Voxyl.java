@@ -3,8 +3,6 @@ package com.gamewolves.ld47.entities.enemies;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -13,28 +11,28 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.gamewolves.ld47.Main;
 import com.gamewolves.ld47.entities.BulletManager;
 import com.gamewolves.ld47.entities.projectiles.AcydrProjectile;
-import com.gamewolves.ld47.entities.projectiles.BasicProjectile;
 import com.gamewolves.ld47.graphics.AnimatedSprite;
 import com.gamewolves.ld47.physics.Physics;
 
 /**
- * Name courtesy of Florian :d
+ * Name courtesy of Florian
  */
-public class Acydr extends Enemy
+public class Voxyl extends Enemy
 {
-    private static float CHARGE_TIME = 2f;
-    private static float VELOCITY = 50;
+    private static float CHARGE_TIME = 1f;
+    private static float VELOCITY = 100;
 
-    private AnimatedSprite front, side, back, shoot;
+    private AnimatedSprite front, side, back, spawn, hatch;
 
     private enum State
     {
         Walking,
-        Firing
+        Spawning,
+        Charging
     }
 
     private State state;
-    private float chargeTime = 0;
+    private float chargeTime = 0, spawnTime = 0;
     private Body body;
 
     private Vector2 lastDir = new Vector2();
@@ -42,21 +40,23 @@ public class Acydr extends Enemy
     @Override
     public void loadResources(AssetManager assetManager)
     {
-        front = new AnimatedSprite((Texture) assetManager.get("enemies/1/front_1.png"), 16, 32, 1f);
-        side = new AnimatedSprite((Texture) assetManager.get("enemies/1/side_1.png"), 16, 32, 1f);
-        back = new AnimatedSprite((Texture) assetManager.get("enemies/1/back_1.png"), 16, 32, 1f);
-        shoot = new AnimatedSprite((Texture) assetManager.get("enemies/1/shoot_1.png"), 16, 32, 2f);
+        front = new AnimatedSprite((Texture) assetManager.get("enemies/2/front_2.png"), 16, 32, 1f);
+        side = new AnimatedSprite((Texture) assetManager.get("enemies/2/side_2.png"), 16, 32, 1f);
+        back = new AnimatedSprite((Texture) assetManager.get("enemies/2/back_2.png"), 16, 32, 1f);
+        spawn = new AnimatedSprite((Texture) assetManager.get("enemies/2/enemy_2_spawnanim.png"), 16, 32, 1f);
+        hatch = new AnimatedSprite((Texture) assetManager.get("enemies/2/ausschluepf_2.png"), 16, 32, 1f);
 
         front.setCentered(true);
         side.setCentered(true);
         back.setCentered(true);
-        shoot.setCentered(true);
+        spawn.setCentered(true);
+        hatch.setCentered(true);
     }
 
     @Override
     public void initialize(BulletManager bulletManager, Vector2 position)
     {
-        state = State.Walking;
+        state = State.Spawning;
         this.position = position;
         this.bulletManager = bulletManager;
         health = 3;
@@ -86,12 +86,21 @@ public class Acydr extends Enemy
         front.setPosition(position);
         back.setPosition(position);
         side.setPosition(position);
-        shoot.setPosition(position);
+        spawn.setPosition(position);
+        hatch.setPosition(position);
 
         if (isGrabbed)
             return;
 
-        if (state == State.Walking)
+        if (state == State.Spawning) {
+            spawn.update(deltaTime);
+            hatch.update(deltaTime);
+
+            spawnTime += deltaTime;
+            if (spawnTime > 2f)
+                state = State.Walking;
+        }
+        else if (state == State.Walking)
         {
             Vector2 dir = playerPos.cpy().sub(position);
             dir.nor();
@@ -100,10 +109,9 @@ public class Acydr extends Enemy
             position.add(dir);
             body.setTransform(position.cpy().add(0, -8), 0);
 
-            if (position.dst2(playerPos) <= 5000) {
-                state = State.Firing;
-                shoot.setTime(0);
-                chargeTime = 0;
+            if (position.dst2(playerPos) <= 2000) {
+                state = State.Charging;
+                //shoot.setTime(0);
             }
 
             front.update(deltaTime);
@@ -113,11 +121,11 @@ public class Acydr extends Enemy
         else
         {
             chargeTime += deltaTime;
-            shoot.update(deltaTime);
+            //shoot.update(deltaTime);
 
             if (chargeTime >= CHARGE_TIME)
             {
-                state = State.Walking;
+                isDisposable = true;
 
                 AcydrProjectile projectile = new AcydrProjectile();
                 projectile.loadResources(Main.get().assetManager);
@@ -129,7 +137,13 @@ public class Acydr extends Enemy
     @Override
     public void render(SpriteBatch batch, Vector2 playerPos)
     {
-        if (state == State.Walking)
+        if (state == State.Spawning) {
+            if (spawnTime < 1.f)
+                spawn.render(batch);
+            else
+                hatch.render(batch);
+        }
+        else if (state == State.Walking)
         {
             float angle = lastDir.angle();
 
@@ -155,7 +169,7 @@ public class Acydr extends Enemy
         }
         else
         {
-            shoot.render(batch);
+            spawn.render(batch);
         }
     }
 
@@ -167,7 +181,7 @@ public class Acydr extends Enemy
 
     public static Vector2 getValidSpawnPosition()
     {
-        return new Vector2(400, 400).rotate(MathUtils.random(360));
+        return new Vector2(100, 0);
     }
 
     @Override

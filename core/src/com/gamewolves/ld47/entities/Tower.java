@@ -14,7 +14,9 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.utils.Array;
 import com.gamewolves.ld47.Main;
 import com.gamewolves.ld47.entities.guns.BasicGun;
+import com.gamewolves.ld47.entities.guns.ExplosiveGun;
 import com.gamewolves.ld47.entities.guns.Gun;
+import com.gamewolves.ld47.entities.guns.HomingGun;
 import com.gamewolves.ld47.entities.guns.LaserGun;
 import com.gamewolves.ld47.graphics.AnimatedSprite;
 import com.gamewolves.ld47.physics.Physics;
@@ -70,6 +72,16 @@ public class Tower
         laserGun.loadResources(Main.get().assetManager);
         laserGun.initialize(bulletManager, 45);
         guns.add(laserGun);
+
+        HomingGun homingGun = new HomingGun();
+        homingGun.loadResources(Main.get().assetManager);
+        homingGun.initialize(bulletManager, 90);
+        guns.add(homingGun);
+
+        ExplosiveGun explosiveGun = new ExplosiveGun();
+        explosiveGun.loadResources(Main.get().assetManager);
+        explosiveGun.initialize(bulletManager, -45);
+        guns.add(explosiveGun);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;

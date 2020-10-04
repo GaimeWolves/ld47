@@ -4,7 +4,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -17,19 +17,22 @@ import com.gamewolves.ld47.entities.enemies.Enemy;
 import com.gamewolves.ld47.graphics.AnimatedSprite;
 import com.gamewolves.ld47.physics.Physics;
 
-public class BasicProjectile extends Projectile
+public class HomingProjectile extends Projectile
 {
-    private static final float ACCELERATION = 100;
+    private static final float ACCELERATION = 150;
 
     private Body body;
     private Sprite projectileSprite;
     private AnimatedSprite trailSprite;
 
+    private boolean hasBeenSplit;
+    private float liveTime;
+
     @Override
     public void loadResources(AssetManager assetManager)
     {
-        Texture projectileTexture = assetManager.get("cracter/weapons/ws_1.png");
-        Texture trailTexture = assetManager.get("cracter/weapons/wsanim_1.png");
+        Texture projectileTexture = assetManager.get("cracter/weapons/ws_2.png");
+        Texture trailTexture = assetManager.get("cracter/weapons/wsanim_2.png");
 
         projectileSprite = new Sprite(projectileTexture);
         trailSprite = new AnimatedSprite(trailTexture, 8, 8, 1f);
@@ -39,7 +42,7 @@ public class BasicProjectile extends Projectile
     public void initialize(BulletManager bulletManager, Vector2 direction, Vector2 position, boolean isPlayerShot)
     {
         super.initialize(bulletManager, direction, position, isPlayerShot);
-        damage = 1;
+        damage = hasBeenSplit ? .5f : 1;
 
         projectileSprite.setOriginCenter();
         projectileSprite.setOriginBasedPosition(position.x, position.y);
@@ -72,6 +75,22 @@ public class BasicProjectile extends Projectile
     @Override
     public void update(float deltaTime, Vector2 towerPos, Array<Enemy> enemies)
     {
+        Enemy nearest = null;
+        for (Enemy enemy : enemies) {
+            float dstNew = enemy.getPosition().dst2(position);
+            float oldDist = nearest == null ? Float.POSITIVE_INFINITY : nearest.getPosition().dst2(position);
+
+            if (dstNew < 5000 && dstNew > 1)
+            {
+                if (dstNew < oldDist)
+                    nearest = enemy;
+            }
+        }
+
+        if (nearest != null) {
+            velocity.setAngle(MathUtils.lerpAngleDeg(velocity.angle(), nearest.getPosition().sub(position).angle(),  Math.min(1, deltaTime * 3)));
+        }
+
         super.update(deltaTime, towerPos, enemies);
         body.setTransform(position, 0);
 
@@ -81,6 +100,20 @@ public class BasicProjectile extends Projectile
         trailSprite.setPosition(position.cpy().sub(velocity.cpy().setLength((projectileSprite.getWidth() + trailSprite.getWidth()) * .5f - 2)));
         trailSprite.setRotation(velocity.angle());
         trailSprite.update(deltaTime);
+
+        liveTime += deltaTime;
+        if (liveTime > (hasBeenSplit ? .8f : .3f)) {
+            if (!hasBeenSplit) {
+                for (float alpha = velocity.angle() - 46; alpha < velocity.angle() + 46; alpha += 45) {
+                    Vector2 newDir = velocity.cpy().setAngle(alpha);
+                    HomingProjectile projectile = new HomingProjectile();
+                    projectile.hasBeenSplit = true;
+                    projectile.loadResources(Main.get().assetManager);
+                    projectile.initialize(bulletManager, newDir, position.cpy(), true);
+                }
+            }
+            isDisposable = true;
+        }
     }
 
     @Override

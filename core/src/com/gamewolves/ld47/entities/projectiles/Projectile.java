@@ -3,7 +3,9 @@ package com.gamewolves.ld47.entities.projectiles;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.gamewolves.ld47.entities.BulletManager;
+import com.gamewolves.ld47.entities.enemies.Enemy;
 
 public abstract class Projectile
 {
@@ -14,6 +16,7 @@ public abstract class Projectile
     protected BulletManager bulletManager;
     protected boolean isPlayerShot;
     protected boolean isDisposable;
+    protected boolean canBeDisposed = true;
 
     protected float damage;
 
@@ -27,7 +30,7 @@ public abstract class Projectile
         bulletManager.addProjectile(this);
     }
 
-    public void update(float deltaTime)
+    public void update(float deltaTime, Vector2 towerPos, Array<Enemy> enemies)
     {
         velocity.add(acceleration.cpy().scl(deltaTime));
         position.add(velocity.cpy().scl(deltaTime));
@@ -48,4 +51,5 @@ public abstract class Projectile
     {
         return position.cpy();
     }
+    public boolean canBeDisposed() { return canBeDisposed; }
 }

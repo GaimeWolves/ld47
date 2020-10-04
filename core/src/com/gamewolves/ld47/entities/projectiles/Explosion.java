@@ -4,7 +4,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -14,38 +13,40 @@ import com.badlogic.gdx.utils.Array;
 import com.gamewolves.ld47.Main;
 import com.gamewolves.ld47.entities.BulletManager;
 import com.gamewolves.ld47.entities.enemies.Enemy;
+import com.gamewolves.ld47.graphics.AnimatedSprite;
 import com.gamewolves.ld47.physics.Physics;
 
-public class AcydrProjectile extends Projectile
+public class Explosion extends Projectile
 {
-    private static final float ACCELERATION = 100;
-
     private Body body;
-    private Sprite sprite;
+    private AnimatedSprite explosion;
+    private float time = 0;
 
     @Override
     public void loadResources(AssetManager assetManager)
     {
-        sprite = new Sprite((Texture) assetManager.get("enemies/1/shot.png"));
-        sprite.setOriginCenter();
+        Texture explosionTexture = assetManager.get("cracter/weapons/explodeanim_3.png");
+
+        explosion = new AnimatedSprite(explosionTexture, 16, 16, .5f);
+        explosion.setCentered(true);
+        explosion.setScale(2.5f, 2.5f);
     }
 
     @Override
     public void initialize(BulletManager bulletManager, Vector2 direction, Vector2 position, boolean isPlayerShot)
     {
         super.initialize(bulletManager, direction, position, isPlayerShot);
-        damage = 1;
+        damage = 10;
+        canBeDisposed = false;
 
-        sprite.setOriginBasedPosition(position.x, position.y);
-
-        velocity = direction.cpy();
-        velocity.setLength(ACCELERATION);
+        explosion.setCentered(true);
+        explosion.setPosition(position);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(5);
+        shape.setRadius(24);
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.isSensor = true;
@@ -63,18 +64,19 @@ public class AcydrProjectile extends Projectile
     {
         super.update(deltaTime, towerPos, enemies);
         body.setTransform(position, 0);
-        sprite.setOriginBasedPosition(position.x, position.y);
-        sprite.rotate(deltaTime * 180);
+
+        explosion.setPosition(position);
+        explosion.update(deltaTime);
+
+        time += deltaTime;
+        if (time > .5f)
+            isDisposable = true;
     }
 
     @Override
     public void render(SpriteBatch batch)
     {
-        batch.end();
-        batch.begin();
-        sprite.draw(batch);
-        batch.end();
-        batch.begin();
+        explosion.render(batch);
     }
 
     @Override

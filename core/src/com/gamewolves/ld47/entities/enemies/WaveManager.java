@@ -17,19 +17,21 @@ public class WaveManager
     private class Wave
     {
         public int acydrCount;
+        public int voxylCount;
 
-        public Wave(int acydrCount) {
+        public Wave(int acydrCount, int voxylCount) {
             this.acydrCount = acydrCount;
+            this.voxylCount = voxylCount;
         }
 
         public int remaining()
         {
-            return acydrCount;
+            return acydrCount + voxylCount;
         }
 
-        public Enemy getRandomEnemy()
+        public Enemy getRandomEnemy(Vector2 posRef)
         {
-            if (acydrCount == 0)
+            if (acydrCount == 0 && voxylCount == 0)
                 return null;
 
             int type = -1;
@@ -41,13 +43,24 @@ public class WaveManager
                             acydrCount--;
                         else
                             type = -1;
+                        break;
+                    case 1:
+                        if (voxylCount > 0)
+                            voxylCount--;
+                        else
+                            type = -1;
+                        break;
                 }
             }
 
             switch (type)
             {
                 case 0:
+                    posRef.set(Acydr.getValidSpawnPosition());
                     return new Acydr();
+                case 1:
+                    posRef.set(Voxyl.getValidSpawnPosition());
+                    return new Voxyl();
             }
 
             return null;
@@ -57,11 +70,11 @@ public class WaveManager
     private static final float WAVE_TIME = 30;
 
     private Array<Wave> waves = new Array<>(new Wave[] {
-            new Wave(5),
-            new Wave(6),
-            new Wave(7),
-            new Wave(8),
-            new Wave(9)
+            new Wave(0, 10),
+            new Wave(0, 10),
+            new Wave(0, 10),
+            new Wave(0, 10),
+            new Wave(0, 10)
     });
 
     private Array<Enemy> enemies = new Array<>();
@@ -113,12 +126,13 @@ public class WaveManager
         if (time > spawnTime * spawned)
         {
             spawned++;
-            Enemy enemy = waves.get(wave).getRandomEnemy();
+            Vector2 pos = new Vector2();
+            Enemy enemy = waves.get(wave).getRandomEnemy(pos);
 
             if (enemy != null)
             {
                 enemy.loadResources(Main.get().assetManager);
-                enemy.initialize(bulletManager, new Vector2(400, 400).rotate(MathUtils.random(360)));
+                enemy.initialize(bulletManager, pos);
                 enemies.add(enemy);
             }
         }
@@ -165,4 +179,6 @@ public class WaveManager
 
         enemies.clear();
     }
+
+    public Array<Enemy> getEnemies() { return enemies; }
 }
