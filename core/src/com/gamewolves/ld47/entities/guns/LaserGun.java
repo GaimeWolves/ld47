@@ -1,6 +1,7 @@
 package com.gamewolves.ld47.entities.guns;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -29,10 +30,13 @@ public class LaserGun extends Gun
     private AnimatedSprite laserBase, laserBeam;
 
     private Body body;
+    private Sound laserSound;
 
     @Override
     public void loadResources(AssetManager assetManager)
     {
+        laserSound = assetManager.get("sound/laser.wav");
+
         Texture texture = assetManager.get("cracter/weapons/weapon_4.png");
         Texture baseTexture = assetManager.get("cracter/weapons/laser_start.png");
         Texture beamTexture = assetManager.get("cracter/weapons/laser.png");
@@ -84,7 +88,10 @@ public class LaserGun extends Gun
         else
         {
             if (!body.isActive())
+            {
                 body.setActive(true);
+                laserSound.play(0.125f);
+            }
         }
 
         towerPosition = towerPos;

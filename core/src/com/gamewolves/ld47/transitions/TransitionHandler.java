@@ -41,8 +41,14 @@ public class TransitionHandler
 	public void render(SpriteBatch batch)
 	{
 		if (currentTransition != null)
-		{
 			currentTransition.render(batch);
+	}
+
+	public void renderUI(SpriteBatch batch)
+	{
+		if (currentTransition != null)
+		{
+			currentTransition.renderUI(batch);
 
 			if (finished)
 			{

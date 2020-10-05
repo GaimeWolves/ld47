@@ -1,6 +1,7 @@
 package com.gamewolves.ld47.entities.enemies;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -38,10 +39,13 @@ public class Acydr extends Enemy
     private Body body;
 
     private Vector2 lastDir = new Vector2();
+    private Sound shootSound;
 
     @Override
     public void loadResources(AssetManager assetManager)
     {
+        shootSound = assetManager.get("sound/shoot.wav");
+
         front = new AnimatedSprite((Texture) assetManager.get("enemies/1/front_1.png"), 16, 32, 1f);
         side = new AnimatedSprite((Texture) assetManager.get("enemies/1/side_1.png"), 16, 32, 1f);
         back = new AnimatedSprite((Texture) assetManager.get("enemies/1/back_1.png"), 16, 32, 1f);
@@ -100,7 +104,7 @@ public class Acydr extends Enemy
             position.add(dir);
             body.setTransform(position.cpy().add(0, -8), 0);
 
-            if (position.dst2(playerPos) <= 5000) {
+            if (position.dst2(playerPos) <= 10000) {
                 state = State.Firing;
                 shoot.setTime(0);
                 chargeTime = 0;
@@ -122,6 +126,8 @@ public class Acydr extends Enemy
                 AcydrProjectile projectile = new AcydrProjectile();
                 projectile.loadResources(Main.get().assetManager);
                 projectile.initialize(bulletManager, playerPos.cpy().sub(position.cpy().add(0, 8)).nor(), position.cpy().add(0, 8), false);
+
+                shootSound.play(0.125f);
             }
         }
     }

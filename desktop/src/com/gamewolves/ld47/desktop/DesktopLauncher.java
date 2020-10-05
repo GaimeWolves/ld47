@@ -1,5 +1,6 @@
 package com.gamewolves.ld47.desktop;
 
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
@@ -10,7 +11,8 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 
 		config.resizable = false;
-		config.title = "kek";
+		config.title = "Bype";
+		config.addIcon("icon.png", Files.FileType.Internal);
 
 		Main main = new Main();
 		main.device = Main.Device.DESKTOP;

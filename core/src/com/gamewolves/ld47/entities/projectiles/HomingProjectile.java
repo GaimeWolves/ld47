@@ -88,7 +88,7 @@ public class HomingProjectile extends Projectile
         }
 
         if (nearest != null) {
-            velocity.setAngle(MathUtils.lerpAngleDeg(velocity.angle(), nearest.getPosition().sub(position).angle(),  Math.min(1, deltaTime * 3)));
+            velocity.setAngle(MathUtils.lerpAngleDeg(velocity.angle(), nearest.getPosition().sub(position).angle(),  Math.min(1, deltaTime * 5)));
         }
 
         super.update(deltaTime, towerPos, enemies);

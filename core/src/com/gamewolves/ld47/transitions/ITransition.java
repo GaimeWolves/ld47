@@ -19,6 +19,7 @@ public interface ITransition
 	boolean update(float deltaTime, float transitionTime);
 
 	void render(SpriteBatch spriteBatch);
+	void renderUI(SpriteBatch spriteBatch);
 
 	void transitionExit();
 }

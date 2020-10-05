@@ -53,9 +53,9 @@ public class Voxyl extends Enemy
     @Override
     public void loadResources(AssetManager assetManager)
     {
-        front = new AnimatedSprite((Texture) assetManager.get("enemies/2/front_2.png"), 32, 64, 1f);
+        front = new AnimatedSprite((Texture) assetManager.get("enemies/2/back_2.png"), 32, 64, 1f);
         side = new AnimatedSprite((Texture) assetManager.get("enemies/2/side_2.png"), 32, 64, 1f);
-        back = new AnimatedSprite((Texture) assetManager.get("enemies/2/back_2.png"), 32, 64, 1f);
+        back = new AnimatedSprite((Texture) assetManager.get("enemies/2/front_2.png"), 32, 64, 1f);
         spawn = new AnimatedSprite((Texture) assetManager.get("enemies/2/enemy_2_spawnanim.png"), 32, 32, 1f);
         hatch = new AnimatedSprite((Texture) assetManager.get("enemies/2/ausschluepf_2.png"), 32, 32, 1f);
         charge = new AnimatedSprite((Texture) assetManager.get("enemies/2/charge_2.png"), 32, 32, CHARGE_TIME);

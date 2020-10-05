@@ -1,6 +1,7 @@
 package com.gamewolves.ld47.entities.guns;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,15 +14,18 @@ import com.gamewolves.ld47.entities.projectiles.BasicProjectile;
 
 public class BasicGun extends Gun
 {
-    private static final float FIRE_COOLDOWN = 1.f;
+    private static final float FIRE_COOLDOWN = .5f;
 
     private float cooldownTime = 0;
 
     private Sprite sprite;
+    private Sound shootSound;
 
     @Override
     public void loadResources(AssetManager assetManager)
     {
+        shootSound = assetManager.get("sound/shoot.wav");
+
         sprite = new Sprite((Texture) assetManager.get("cracter/weapons/weapon_1.png"));
         sprite.setOriginCenter();
         sprite.setScale(0.7f);
@@ -58,6 +62,8 @@ public class BasicGun extends Gun
             projectile = new BasicProjectile();
             projectile.loadResources(Main.get().assetManager);
             projectile.initialize(bulletManager, Vector2.X.cpy().setAngle(actualAngle).scl(-1), towerPosition.cpy().add(shotOffset.cpy().scl(-1)), true);
+
+            shootSound.play(0.125f);
         }
     }
 

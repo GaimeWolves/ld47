@@ -21,7 +21,7 @@ import com.gamewolves.ld47.physics.Physics;
  */
 public class Magister extends Enemy
 {
-    private static final float CHARGE_TIME = 4f;
+    private static final float CHARGE_TIME = 8f;
     private static final float VELOCITY = 25;
     private static final int SPAWN_COUNT = 8;
 

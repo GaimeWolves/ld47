@@ -38,7 +38,7 @@ public class InputHandler
 		// Click event
 		if (Gdx.input.justTouched())
 		{
-			Vector2 worldPosition = toWorldCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+			Vector2 worldPosition = toUiCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
 
 			for (IInputListener listener : inputListeners)
 				listener.OnClick(worldPosition);
@@ -47,7 +47,7 @@ public class InputHandler
 		// Drag or hold events
 		if (Gdx.input.isTouched())
 		{
-			Vector2 worldPosition = toWorldCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+			Vector2 worldPosition = toUiCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
 
 			if (!dragging)
 			{
@@ -89,6 +89,19 @@ public class InputHandler
 	}
 
 	public Vector2 getMousePositionInWorld()
+	{
+		return toWorldCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+	}
+
+	private Vector2 toUiCoordinates(Vector2 screenCoordinates)
+	{
+		return new Vector2(
+				Main.get().UICamera.unproject(new Vector3(screenCoordinates.x, screenCoordinates.y, 0)).x,
+				Main.get().UICamera.unproject(new Vector3(screenCoordinates.x, screenCoordinates.y, 0)).y
+		);
+	}
+
+	public Vector2 getMousePositionInUiScreen()
 	{
 		return toWorldCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
 	}

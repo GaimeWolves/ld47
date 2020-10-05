@@ -1,6 +1,7 @@
 package com.gamewolves.ld47.entities.projectiles;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -20,10 +21,14 @@ public class VoxylExplosion extends Projectile
     private AnimatedSprite explosion;
     private float time = 0;
 
+    private Sound explosionSound;
+
     @Override
     public void loadResources(AssetManager assetManager)
     {
         Texture explosionTexture = assetManager.get("enemies/2/explode_2.png");
+        explosionSound = assetManager.get("sound/explode.wav");
+        explosionSound.play(0.125f);
 
         explosion = new AnimatedSprite(explosionTexture, 16, 16, .5f);
         explosion.setCentered(true);

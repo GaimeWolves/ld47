@@ -213,9 +213,9 @@ public class WaveManager
 
     public void renderUI(SpriteBatch batch)
     {
-        waveLabel.draw(batch, 1);
-        etaLabel.draw(batch, 1);
-        remainingLabel.draw(batch, 1);
+        waveLabel.draw(batch, batch.getColor().a);
+        etaLabel.draw(batch, batch.getColor().a);
+        remainingLabel.draw(batch, batch.getColor().a);
     }
 
     public void dispose(AssetManager assetManager)

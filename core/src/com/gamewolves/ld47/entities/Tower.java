@@ -3,6 +3,7 @@ package com.gamewolves.ld47.entities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -34,7 +35,7 @@ public class Tower
     private float acceleration = 360;
     private Vector2 position = new Vector2();
     private Body body;
-    private float health = 100;
+    private float health = 50;
 
     private BulletManager bulletManager;
 
@@ -48,8 +49,12 @@ public class Tower
     private Label upgradeLabel;
     private float textTime;
 
+    private Sound upgradeSound;
+
     public void loadResources(AssetManager assetManager)
     {
+        upgradeSound = assetManager.get("sound/newgun.wav");
+
         Texture idle0 = assetManager.get("cracter/prof_idle_1.png");
         Texture idle1 = assetManager.get("cracter/prof_idle_2.png");
         Texture idle2 = assetManager.get("cracter/prof_idle_3.png");
@@ -139,9 +144,9 @@ public class Tower
             gun.update(deltaTime, position);
         }
 
-        health += deltaTime;
-        if (health > 100)
-            health = 100;
+        health += deltaTime * .25f;
+        if (health > 50)
+            health = 50;
 
         upgradeLabel.setPosition(position.x, position.y + 20 - (10 * textTime), Align.center);
         if (textTime > 0) {
@@ -164,13 +169,18 @@ public class Tower
 
     public void renderUiInWorldSpace(SpriteBatch batch)
     {
-        upgradeLabel.draw(batch, textTime);
+        Color color = batch.getColor().cpy();
+        upgradeLabel.draw(batch, Math.min(textTime, batch.getColor().a));
+        batch.setColor(color);
     }
 
     public void renderUI(SpriteBatch batch)
     {
-        batch.draw(healthBarBg, 6 - Main.get().Width * .5f, 6 - Main.get().Height * .5f);
-        batch.draw(healthBar, 8 - Main.get().Width * .5f, 8 - Main.get().Height * .5f, 0, 0, (int) (healthBar.getWidth() * (health / 100.f)), healthBar.getHeight());
+        float bgWidth = Main.get().Width - 10;
+        batch.draw(healthBarBg, -bgWidth * .5f, 6 - Main.get().Height * .5f, bgWidth, healthBarBg.getHeight());
+        float barWidth = bgWidth - 30;
+        int actualWidth = (int) (barWidth * (health / 50.f));
+        batch.draw(healthBar, -barWidth * .5f, 8 - Main.get().Height * .5f, 0, 0, actualWidth, healthBar.getHeight());
     }
 
     public void dispose(AssetManager assetManager)
@@ -211,6 +221,7 @@ public class Tower
         }
 
         textTime = 1;
+        upgradeSound.play(0.125f);
     }
 
     public Vector2 getPosition()

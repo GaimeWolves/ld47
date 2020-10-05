@@ -20,7 +20,7 @@ import com.gamewolves.ld47.physics.Physics;
  */
 public class Crab extends Enemy
 {
-    private static float VELOCITY = 75;
+    private static float VELOCITY = 40;
     private static final float SPAWN_TIME = 2.f;
 
     private AnimatedSprite walk, spawn;
@@ -31,7 +31,7 @@ public class Crab extends Enemy
     @Override
     public void loadResources(AssetManager assetManager)
     {
-        walk = new AnimatedSprite((Texture) assetManager.get("enemies/3/crabwalk_walk.png"), 16, 16, .5f);
+        walk = new AnimatedSprite((Texture) assetManager.get("enemies/3/crabwalk.png"), 16, 16, .5f);
         walk.setCentered(true);
         walk.setScale(.75f, .75f);
 
@@ -45,7 +45,7 @@ public class Crab extends Enemy
     {
         super.initialize(bulletManager, position, waveManager);
         health = 1;
-        contactDamage = .5f;
+        contactDamage = .1f;
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
